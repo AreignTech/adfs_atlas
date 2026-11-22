@@ -26,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<ILdapUserWriter, LdapUserWriter>();
         services.AddSingleton<DatabaseMigrator>();
         services.AddSingleton<DatabaseSeeder>();
+        services.AddSingleton<Atlas.Application.Observability.IMonitoringStore, MonitoringStore>();
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IIdentityWriter, IdentityWriter>();

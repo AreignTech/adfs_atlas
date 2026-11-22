@@ -16,22 +16,27 @@ public sealed class AuthController(IAuthService auth, IOptions<AuthOptions> opti
     private AuthOptions Settings => options.Value;
     private CookieOptions Cookie(DateTimeOffset? expires = null) => new() { HttpOnly = true, Secure = !environment.IsDevelopment() || Settings.RequireHttps, SameSite = SameSiteMode.Lax, Path = "/", IsEssential = true, Expires = expires };
     [HttpGet("csrf"), AllowAnonymous]
+    [ProducesResponseType<Atlas.Api.Observability.CsrfDocumentation>(200)]
     public object Csrf(IAntiforgery antiforgery)
     {
         Response.Headers.CacheControl = "no-store";
         return new { token = antiforgery.GetAndStoreTokens(HttpContext).RequestToken };
     }
     [HttpGet("session"), AllowAnonymous]
+    [ProducesResponseType<Atlas.Api.Observability.SessionDocumentation>(200), ProducesResponseType(204)]
     public IActionResult Session()
     {
         Response.Headers.CacheControl = "no-store";
         return HttpContext.Items["AtlasSession"] is AuthSession session ? Ok(new { user = session.Context.User, session = new { expiresAt = session.ExpiresAt }, context = session.Context }) : Ok(null);
     }
     [HttpPost("login"), AllowAnonymous, EnableRateLimiting("login")]
+    [ProducesResponseType<Atlas.Api.Observability.SessionDocumentation>(200)]
     public async Task<object> Login(LoginRequest request, CancellationToken ct) => Issue(await auth.LoginAsync(request, HttpContext.Connection.RemoteIpAddress?.ToString(), Request.Headers.UserAgent, ct));
     [HttpPost("register"), AllowAnonymous, EnableRateLimiting("login")]
+    [ProducesResponseType<Atlas.Api.Observability.SessionDocumentation>(200)]
     public async Task<object> Register(RegisterRequest request, CancellationToken ct) => Issue(await auth.RegisterAsync(request, HttpContext.Connection.RemoteIpAddress?.ToString(), Request.Headers.UserAgent, ct));
     [HttpPost("logout"), AllowAnonymous]
+    [ProducesResponseType(204)]
     public async Task<IActionResult> Logout(CancellationToken ct)
     {
         await auth.LogoutAsync(Request.Cookies[Settings.CookieName], ct);
@@ -39,6 +44,7 @@ public sealed class AuthController(IAuthService auth, IOptions<AuthOptions> opti
         return NoContent();
     }
     [HttpPost("password"), Authorize]
+    [ProducesResponseType(204)]
     public async Task<IActionResult> Password(ChangePasswordRequest request, CancellationToken ct)
     {
         var session = (AuthSession)HttpContext.Items["AtlasSession"]!;
@@ -53,6 +59,7 @@ public sealed class AuthController(IAuthService auth, IOptions<AuthOptions> opti
     }
 
     [HttpPost("delete-account"), Authorize, EnableRateLimiting("login")]
+    [ProducesResponseType(204)]
     public async Task<IActionResult> DeleteAccount(DeleteAccountRequest input, [FromServices] IAccountRepository accounts, [FromServices] IMemberRepository members, [FromServices] IPasswordHasher hasher, [FromServices] IAdminWriter writer, CancellationToken ct)
     {
         var actor = ((AuthSession)HttpContext.Items["AtlasSession"]!).Context;

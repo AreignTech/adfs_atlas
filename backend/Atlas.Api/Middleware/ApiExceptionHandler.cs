@@ -9,6 +9,10 @@ public sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) : I
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken ct)
     {
+        context.Items["DiagnosticExceptionType"] = exception.GetType().FullName;
+        System.Diagnostics.Activity.Current?.SetStatus(System.Diagnostics.ActivityStatusCode.Error);
+        System.Diagnostics.Activity.Current?.SetTag("error.type",exception.GetType().FullName);
+        context.Items["DiagnosticStack"] = new System.Diagnostics.StackTrace(exception, false).GetFrames()?.Take(20).Select(frame => frame.GetMethod()?.DeclaringType?.FullName + "." + frame.GetMethod()?.Name).ToArray();
         var status = exception switch { AtlasException e => e.StatusCode, SqlException { Number: 2601 or 2627 } => 409, SqlException { Number: 547 } => 409, ArgumentException or FormatException or System.Text.Json.JsonException => 400, _ => 500 };
         var detail = exception is AtlasException atlas ? atlas.Message : status == 409 ? "The operation conflicts with existing records or relationships." : status == 400 ? "Invalid input." : "The operation could not be completed.";
         if (status == 403 && context.Items["AtlasSession"] is Atlas.Application.Interfaces.AuthSession session)

@@ -22,6 +22,7 @@ public sealed class WorkspaceService(IProjectRepository projects, ITaskRepositor
     public static MemberDto ToDto(MemberWithUser m) => new() { Id = m.Id.ToString(), UserId = m.UserId, Name = m.Name, Email = m.Email, Initials = string.Concat(m.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(p => char.ToUpperInvariant(p[0]))), Role = m.Role, Status = m.Status == "active" ? "Active" : m.Status == "invited" ? "Invited" : "Away", JoinedDate = m.JoinedAt.ToString("yyyy-MM-dd"), LastActive = m.LastActiveAt?.ToString("yyyy-MM-dd") ?? "Never signed in", LabId = m.LabId, SectionId = m.SectionId, LabCode = m.LabCode, LabName = m.LabName, SectionCode = m.SectionCode, SectionName = m.SectionName };
     public async Task<WorkspaceDto> GetAsync(SessionContextDto actor, CancellationToken ct)
     {
+        using var span=Atlas.Application.Observability.ApplicationTracing.Source.StartActivity("Workspace.Get");
         var filter = new OrgScopeFilter(actor.IsAdministrator, actor.Scope.LabId, actor.Scope.SectionId);
         var visibleProjects = actor.Permissions.Contains("tasks.view") ? await projects.ListAsync(filter, ct) : [];
         var visibleTasks = actor.Permissions.Contains("tasks.view") ? await tasks.ListAsync(filter, ct) : [];
@@ -44,6 +45,7 @@ public sealed class WorkspaceService(IProjectRepository projects, ITaskRepositor
     }
     public async Task<ProjectDto> SaveProjectAsync(SessionContextDto actor, Guid? id, ProjectInput input, CancellationToken ct)
     {
+        using var span=Atlas.Application.Observability.ApplicationTracing.Source.StartActivity("Workspace.SaveProject");
         await guard.PermissionAsync(actor, id is null ? "tasks.create" : "tasks.edit", ct);
         var previous = id is null ? null : await ProjectAsync(actor, id.Value, ct);
         Text(input.Name, 2, 120, "project name");

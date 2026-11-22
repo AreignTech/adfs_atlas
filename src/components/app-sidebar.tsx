@@ -144,6 +144,18 @@ export function AppSidebar({
                 url: "/settings/audit",
                 icon: ListTodo,
               },
+              {
+                title: "API Management",
+                url: "/settings/api-management",
+                icon: Settings,
+                items: [
+                  { title: "API Health and Statistics", url: "/settings/api-management" },
+                  { title: "API Documentation", url: "/settings/api-management/documentation" },
+                  { title: "API Activity Logs", url: "/settings/api-management/activity" },
+                  { title: "API Diagnostics", url: "/settings/api-management/diagnostics" },
+                  { title: "API Configuration", url: "/settings/api-management/configuration" },
+                ],
+              },
             ],
           },
         ]

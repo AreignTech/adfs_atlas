@@ -8,9 +8,31 @@ using Atlas.Api.Middleware;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Antiforgery;
 using System.Threading.RateLimiting;
+using Atlas.Api.Observability;
+using Microsoft.AspNetCore.Authorization;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddJsonConsole();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<MonitoringRuntime>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<MonitoringRuntime>());
+builder.Services.AddSingleton<ILoggerProvider, DiagnosticLoggerProvider>();
+builder.Services.AddSingleton<IAuthorizationHandler, MonitoringAuthorization>();
+builder.Services.AddAuthorization(options => options.AddPolicy("ApiManagement", policy => policy.RequireAuthenticatedUser().AddRequirements(new MonitoringRequirement())));
+builder.Services.AddTransient<CorrelationHandler>();
+builder.Services.AddHttpClient("atlas").AddHttpMessageHandler<CorrelationHandler>();
+builder.Services.AddSingleton<SafeTraceProcessor>();
+builder.Services.AddSingleton<MonitoringSampler>();
+builder.Services.AddOpenTelemetry().ConfigureResource(resource => resource.AddService("atlas-api"))
+    .WithTracing(tracing => {
+        tracing.SetSampler<MonitoringSampler>().AddAspNetCoreInstrumentation(options => options.RecordException=false)
+            .AddHttpClientInstrumentation(options => options.RecordException=false)
+            .AddSqlClientInstrumentation(options => options.RecordException=false)
+            .AddSource("Atlas.*").AddProcessor<SafeTraceProcessor>();
+        if (!string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"])) tracing.AddOtlpExporter();
+    });
 
 builder.Services.AddAtlasInfrastructure(builder.Configuration);
 builder.Services.AddAtlasApplication(builder.Configuration);
@@ -28,15 +50,17 @@ builder.Services.AddAntiforgery(options =>
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = 429;
+    options.AddPolicy("diagnostic-export", context => RateLimitPartition.GetFixedWindowLimiter(context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? context.Connection.RemoteIpAddress?.ToString() ?? "unknown", _ => new FixedWindowRateLimiterOptions { PermitLimit=5,Window=TimeSpan.FromMinutes(1),QueueLimit=0 }));
     options.AddPolicy("login", context => RateLimitPartition.GetFixedWindowLimiter(context.Connection.RemoteIpAddress?.ToString() ?? "unknown", _ => new FixedWindowRateLimiterOptions { PermitLimit = 20, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
     options.AddPolicy("ldap-login", context => RateLimitPartition.GetFixedWindowLimiter(context.Connection.RemoteIpAddress?.ToString() ?? "unknown", _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(10), QueueLimit = 0 }));
 });
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(ApiDocumentation.Configure);
 
 var app = builder.Build();
 
+app.UseMiddleware<ApiActivityMiddleware>();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.Use(async (context, next) =>
@@ -91,8 +115,12 @@ if (app.Environment.IsDevelopment())
         var applied = await migrator.GetAppliedScriptsAsync(cancellationToken);
         return Results.Ok(new { applied });
     });
-    app.MapOpenApi();
 }
+foreach (var route in (app.Environment.IsDevelopment() ? new[] { "/openapi/{documentName}.json" } : []).Concat(new[] { "/api/admin/api-management/openapi/{documentName}.json", "/api/admin/api-management/openapi/{documentName}.yaml" }))
+app.MapOpenApi(route).RequireAuthorization("ApiManagement").AddEndpointFilter(async (context,next) => {
+    await ApiDocumentation.AuditAsync(context.HttpContext,context.HttpContext.RequestServices.GetRequiredService<Atlas.Application.Interfaces.Repositories.IRbacAuditRepository>(),context.HttpContext.RequestAborted);
+    return await next(context);
+});
 app.MapControllers();
 
 app.Run();

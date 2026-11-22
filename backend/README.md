@@ -198,3 +198,188 @@ widgets were placeholders. Their configuration UI remains; this backend migratio
 does not implement external provider integrations or make sample keys usable as
 authentication credentials. Production directory-specific Active Directory
 configuration must be checked in its actual deployment environment.
+
+## API Management and Diagnostics Center
+
+Administrators with `admin.access` can open **Administration → API Management**.
+The primary dashboard is `/settings/api-management`; its documentation,
+activity, diagnostics and configuration pages append `/documentation`,
+`/activity`, `/diagnostics` and `/configuration`. Updating monitoring settings
+also requires `admin.settings`. These checks run in the API as well as the UI.
+The existing session, role resolver, CSRF protection and dashboard shell are reused.
+
+### Installation and documentation
+
+Run `pnpm install --frozen-lockfile`, restore/build the backend, and run
+`pnpm db:migrate` before starting the updated API. Migration
+`005_api_observability.sql` adds `api_diagnostic_record` and
+`api_monitoring_config`; it does not alter application identity or business data.
+The diagnostic table indexes stream/timestamp, request ID, correlation ID,
+user ID, endpoint and HTTP status. The configuration table has one JSON row.
+
+Scalar is bundled through the official `@scalar/api-reference-react` package.
+Installed versions: Scalar React `0.9.95`; OpenTelemetry hosting, ASP.NET,
+HttpClient, SQL Client and OTLP exporter packages `1.21.0`. Package lockfiles
+record the complete resolved dependency graph.
+It uses the existing ASP.NET OpenAPI generator rather than a copied endpoint
+list. Controller signatures, DTOs and response metadata supply schemas; schema
+and operation transformers add authentication, common errors, required identity
+fields and illustrative request/error response examples. Legacy anonymous
+responses have explicit response metadata. Dynamic `JsonElement` settings and
+patch payloads retain generic JSON schemas. Add typed DTOs or
+`ProducesResponseType` metadata when extending endpoints; do not maintain a
+separate specification.
+
+The protected browser URLs are:
+
+- `/api/atlas/admin/api-management/openapi/v1.json`
+- `/api/atlas/admin/api-management/openapi/v1.yaml`
+
+Their direct backend equivalents replace `/api/atlas` with `/api`. The legacy
+`/openapi/v1.json` remains development-only and now also requires an administrator.
+Downloads and documentation reads are audited. Scalar sends cookies only to
+the same-origin application proxy, obtains a fresh CSRF token for unsafe
+requests, and rejects external request targets and redirects. Authentication
+persistence, telemetry, external fonts and developer sharing tools are disabled.
+Executing an endpoint retains all existing backend permission and scope checks.
+The API type-generation CLI now needs an authorized session when reading OpenAPI.
+
+### Collection, storage and security
+
+`ApiActivityMiddleware` surrounds exception handling, authentication,
+authorization, rate limiting and controllers. It captures actual status codes,
+duration, response byte counts, safe header metadata, browser family, immediate
+peer IP, user ID, route template and correlation information. Unknown paths are
+stored as `/[unmatched]`; route parameter values are omitted. Forwarded client
+IP headers are not trusted automatically.
+
+Each request receives a new UUID request ID and a UUID correlation ID, returned
+in `X-Request-ID` and `X-Correlation-ID`. Inbound correlation IDs are replaced
+unless the immediate peer is explicitly trusted and the supplied value is a valid
+nonempty UUID. The IDs flow through `HttpContext`, logging scopes and Activity
+tags. Existing inbound W3C trace context is identified separately from trust in
+the correlation header. Outbound named HttpClient `atlas` forwards the correlation
+ID only to explicitly allowlisted hosts.
+
+Redaction occurs before enqueueing or persistence. Request/response bodies are
+off by default and limited to workspace/project/task routes. Authentication,
+password, LDAP, settings and diagnostics bodies are never collected. Even when
+enabled, arbitrary strings and nontechnical primitive values are redacted;
+only named technical numeric/boolean fields survive. Sensitive field names have
+an immutable built-in denylist plus administrator additions. Header capture is
+limited to normalized content type and validated content length. Query values
+are always redacted and unknown query keys are replaced. JSON depth, collection
+lengths and captured bytes are bounded. Cookies, credentials, arbitrary headers,
+raw SQL and exception messages are not persisted.
+
+`MonitoringRuntime` uses a bounded 4,096-record channel and batched background
+SQL writes. Request completion does not wait for database ingestion. Overflow
+and write failures increment visible ingestion counters; they never fail normal
+requests. Shutdown attempts a five-second drain. This is best-effort diagnostic
+storage, not a durable compliance audit queue. A process crash or outage can
+lose queued records. Review dropped/failure counters when sizing the deployment.
+
+The existing `ILogger` pipeline remains active. A provider persists a logically
+separate `application` stream in the same diagnostic table, with severity,
+component, event ID, safe known event descriptions and optional exception type.
+Interpolated arguments and unknown message text are omitted. API activity and
+application events are independently searchable; request details load related
+application events and spans using the correlation ID. There is no business
+background-job infrastructure in the existing application to instrument.
+
+### Statistics, searches and retention
+
+All dashboard counts, success/error rates, averages, percentile calculations,
+time buckets, endpoint rankings, method groups and status groups come from SQL
+queries over collected activity records. No example dashboard data is seeded.
+Reporting windows cover 15 minutes through 30 days or a custom range up to
+31 days. Recent activity appears below the overview; charts follow the table.
+The UI refreshes every 15 seconds and cancels obsolete filter requests.
+
+`/api/admin/api-management` exposes activity search/detail, statistics,
+ingestion health, configuration and export endpoints. Filtering and pagination
+run on the server; sort columns are allowlisted and query values parameterized.
+Request/correlation IDs, user, method, endpoint, status, stream, date range,
+success/failure, slow requests and authentication/authorization failures are
+searchable. A request detail includes safe request/response metadata, redacted
+optional bodies, exception type, method-only stack frames and related trace spans.
+
+JSON and CSV exports reuse the selected filters and sort order. Each export is
+capped at 1,000 rows and rate-limited to five per minute per user/IP partition.
+CSV fields are quoted and formula-escaped. Exports, sensitive record reads,
+searches and configuration changes use the existing RBAC audit table;
+configuration persistence and its audit insertion share a transaction.
+Retention defaults to 30 days. The worker purges expired diagnostic rows in
+bounded 2,000-row batches (up to 16 batches every 15 seconds). RBAC security audits retain their existing
+retention behavior. Disabling activity collection does not delete history.
+
+### Tracing and deployment configuration
+
+OpenTelemetry packages instrument ASP.NET incoming requests, HttpClient calls
+and SQL Server commands. `Atlas.Application` adds internal workspace operation
+spans. Sampled span durations and parent/span IDs are available in the trace
+stream. An allowlist processor strips sensitive tags and baggage before storage
+and OTLP export. Exception event recording is disabled. Future custom spans must
+use static operation names and never attach credentials, SQL text, user payloads
+or exception messages/events.
+
+Tracing is disabled by default and has a separate dynamic enable switch and
+sampling ratio in API Configuration. No collector is needed for local span
+storage. To export traces, set `OTEL_EXPORTER_OTLP_ENDPOINT` on the API host
+and restart it; standard OpenTelemetry OTLP protocol/header environment settings
+apply. Collector availability and authentication are deployment responsibilities.
+Export transport is disabled when no collector endpoint is configured.
+
+Optional API host settings:
+
+- `Observability:TrustedCorrelationPeers`: array of trusted immediate IP peers.
+  A trusted proxy must strip or replace untrusted incoming correlation headers.
+- `Observability:CorrelationHosts`: array of outbound hostnames allowed to receive
+  correlation headers through the named `atlas` HttpClient.
+- Indexed environment forms use `Observability__TrustedCorrelationPeers__0` and
+  `Observability__CorrelationHosts__0` (and subsequent indexes).
+
+All other logging/capture/retention/sampling settings are persisted through API
+Configuration. Defaults require no new secrets or environment variables.
+No collector or LDAP test service was provisioned by this feature.
+
+### Implementation and verification
+
+New backend files: `Atlas.Application/Observability/*`,
+`Atlas.Api/Observability/*`, `Atlas.Api/Controllers/MonitoringController.cs`,
+`Atlas.Infrastructure/Repositories/MonitoringStore.cs`, the migration above,
+and `Atlas.Tests/MonitoringTests.cs`.
+Modified backend integration points: API `Program.cs`, project/lock files,
+controller response metadata, the exception handler, workspace
+service spans and infrastructure registration.
+New frontend files: `src/lib/api/monitoring.ts`, the
+`src/app/(dashboard)/settings/api-management` route tree and components,
+and `tests/ui/api-management.spec.ts`.
+Modified frontend integration points: sidebar navigation, global CSS layer order,
+API client cancellation support, package manifest and pnpm lockfile.
+
+Verification commands:
+
+```powershell
+pnpm build
+pnpm typecheck
+dotnet build backend/Atlas.slnx -m:1
+dotnet vstest backend/Atlas.Tests/bin/Debug/net10.0/Atlas.Tests.dll --TestCaseFilter:'Category!=LdapIntegration'
+$env:ATLAS_UI_TEST_PRODUCTION = 'true'
+pnpm exec playwright test tests/ui/api-management.spec.ts tests/ui/registration.spec.ts tests/ui/smoke.spec.ts --workers=2
+```
+
+Monitoring integration tests use the isolated Verification database, check
+administrator restrictions, JSON/YAML documentation, real SQL metrics and P95,
+filtering/pagination/export, configuration auditing, redaction, sampled spans,
+authentication/authorization/validation/404/rate-limit recording and storage
+failure isolation. Browser tests exercise the real dashboard, request details,
+exports, settings/mobile layout, Scalar GET and CSRF-protected POST execution,
+and existing login/registration flows. Live LDAP tests require the separate
+fixture described above.
+
+Validation on the local implementation: frontend production build and targeted
+ESLint checks passed; all 25 backend tests outside `LdapIntegration` passed;
+all 12 production-browser API Management, registration and smoke tests passed.
+No browser JavaScript errors occurred in the API Management checks. Live LDAP
+fixture tests and delivery to an external OTLP collector were not run.

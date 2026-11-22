@@ -22,6 +22,7 @@ public sealed class WorkspaceController(WorkspaceService service, IProjectReposi
         return WorkspaceService.ToDto(await service.ProjectAsync(Actor, id, ct), await memberships.ListForProjectAsync(id, ct));
     }
     [HttpGet("projects")]
+    [ProducesResponseType<PageResult<Atlas.Domain.Entities.Project>>(200)]
     public async Task<object> Projects([FromQuery] SearchQuery query, CancellationToken ct) { await guard.PermissionAsync(Actor, "tasks.view", ct); return await search.ProjectsAsync(new(Actor.IsAdministrator, Actor.Scope.LabId, Actor.Scope.SectionId), query, ct); }
     [HttpPost("projects")]
     public Task<ProjectDto> CreateProject(ProjectInput input, CancellationToken ct) => service.SaveProjectAsync(Actor, null, input, ct);
@@ -51,6 +52,7 @@ public sealed class WorkspaceController(WorkspaceService service, IProjectReposi
     [HttpPatch("tasks/{id:guid}")]
     public Task<TaskDto> UpdateTask(Guid id, JsonElement input, CancellationToken ct) => service.PatchTaskAsync(Actor, id, input, ct);
     [HttpPost("tasks/reorder")]
+    [ProducesResponseType(204)]
     public async Task<IActionResult> Reorder(TaskReorderInput input, CancellationToken ct) { await service.ReorderAsync(Actor, input, ct); return NoContent(); }
     [HttpDelete("tasks/{id:guid}")]
     public async Task<Guid> DeleteTask(Guid id, CancellationToken ct) { await guard.PermissionAsync(Actor, "tasks.delete", ct); await service.TaskAsync(Actor, id, ct); await tasks.DeleteAsync(id, ct); return id; }

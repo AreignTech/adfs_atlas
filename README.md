@@ -100,6 +100,15 @@ the local ignored `.backups` folder with a restricted Windows ACL. The dump
 was restored into a separate verification database successfully. Keep these
 backups until operational sign-off. Do not delete or modify the original volume.
 
+## API Management
+
+Administrators can use **Administration → API Management** for Scalar API
+documentation, live statistics, searchable activity/application logs, diagnostic
+details, exports and monitoring configuration. Start at
+`/settings/api-management`. Apply database migrations before running the updated
+API. See the [backend implementation and deployment guide](backend/README.md#api-management-and-diagnostics-center)
+for storage, redaction, tracing, configuration and verification details.
+
 ## Attribution
 
 The interface is based on the open-source

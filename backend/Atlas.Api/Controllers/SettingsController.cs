@@ -14,8 +14,10 @@ public sealed class SettingsController(ISettingsRepository settings, IUserReposi
 {
     private string UserId => ((AuthSession)HttpContext.Items["AtlasSession"]!).Context.User.Id;
     [HttpGet("profile")]
+    [ProducesResponseType<Atlas.Api.Observability.ProfileDocumentation>(200)]
     public async Task<object> Profile(CancellationToken ct) => new { user = await users.GetByIdAsync(UserId, ct), profile = await settings.GetAsync(UserId, "profile", ct) };
     [HttpPost("profile")]
+    [ProducesResponseType<Atlas.Api.Observability.SuccessDocumentation>(200)]
     [RequestSizeLimit(3_000_000)]
     public async Task<object> SaveProfile(JsonElement input, CancellationToken ct)
     {
@@ -27,8 +29,10 @@ public sealed class SettingsController(ISettingsRepository settings, IUserReposi
         await settings.SaveProfileAsync(UserId, name, email.ToLowerInvariant(), image, input, ct); return new { success = true };
     }
     [HttpGet("{key}")]
+    [ProducesResponseType<Atlas.Api.Observability.PreferencesDocumentation>(200)]
     public async Task<object> Get(string key, CancellationToken ct) { ValidateKey(key); return new { value = await settings.GetAsync(UserId, key, ct) }; }
     [HttpPost("{key}")]
+    [ProducesResponseType<Atlas.Api.Observability.SuccessDocumentation>(200)]
     public async Task<object> Save(string key, JsonElement input, CancellationToken ct)
     {
         ValidateKey(key); if (input.ValueKind != JsonValueKind.Object || input.GetRawText().Length > 50000) throw new ValidationException("Invalid settings payload.");

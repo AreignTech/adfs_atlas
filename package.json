@@ -25,6 +25,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.9.1",
+    "@scalar/api-reference-react": "^0.9.95",
     "@tailwindcss/postcss": "^4.3.3",
     "@tanstack/react-table": "^9.2.6",
     "class-variance-authority": "^0.7.1",
