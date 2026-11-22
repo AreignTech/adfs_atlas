@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { api } from "@/lib/api/client"
 import {
   CalendarClock,
   Check,
@@ -82,8 +83,15 @@ export default function IntegrationSettings() {
   const [keys, setKeys] = useState(DEMO_KEYS)
   const [revealed, setRevealed] = useState<string | null>(null)
 
-  function toggle(key: IntegrationKey, name: string, next: boolean) {
-    setConnected((prev) => ({ ...prev, [key]: next }))
+  useEffect(() => {
+    api<{ value: Record<IntegrationKey, boolean> | null }>("/settings/connections").then(({ value }) => { if (value) setConnected(value) }).catch((error: unknown) => toast.add({ type: "error", title: "Could not load integration settings", description: error instanceof Error ? error.message : "Please try again." }))
+  }, [])
+  async function toggle(key: IntegrationKey, name: string, next: boolean) {
+    const previous = connected
+    const updated = { ...connected, [key]: next }
+    setConnected(updated)
+    try { await api("/settings/connections", "POST", updated) }
+    catch (error) { setConnected(previous); toast.add({ type: "error", title: "Could not save integration settings", description: error instanceof Error ? error.message : "Please try again." }); return }
     toast.add({
       type: next ? "success" : "info",
       title: next ? `${name} connected` : `${name} disconnected`,

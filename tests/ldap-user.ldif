@@ -1,0 +1,7 @@
+dn: uid=atlas-test,dc=atlas,dc=test
+objectClass: inetOrgPerson
+uid: atlas-test
+cn: ATLAS Directory Test
+sn: Test
+mail: ldap-user@atlas.test
+userPassword: UserDirectory123!

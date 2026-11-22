@@ -21,7 +21,7 @@ import {
   saveLdapAdminConfig,
   saveLdapGroupMappings,
   testLdapAdminConnection,
-} from "@/db/actions/ldap"
+} from "@/lib/api/ldap"
 
 type Config = Awaited<ReturnType<typeof getLdapAdminConfig>>
 type Mapping = Awaited<ReturnType<typeof getLdapGroupMappings>>[number]
@@ -358,7 +358,7 @@ export default function AuthenticationSettings() {
                     ldapGroup: "",
                     atlasRole: "Member",
                     enabled: true,
-                    updatedAt: new Date(),
+                    updatedAt: new Date().toISOString(),
                   } as Mapping,
                 ])
               }

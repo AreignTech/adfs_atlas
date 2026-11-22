@@ -1,131 +1,107 @@
-# ATLAS - ADFS Task Lifecycle and Assignment System
+# ATLAS v2.0 — ADFS Task Lifecycle and Assignment System
 
-A modern project & task management dashboard built with Next.js, TypeScript, Tailwind CSS v4 and shadcn/ui.
+ATLAS keeps its Next.js 16 / React 19 interface and uses an ASP.NET Core API,
+Dapper, and Microsoft SQL Server for authentication, authorization, and data.
 
-<!-- prettier-ignore -->
-> ATLAS is a centralized task lifecycle and assignment management platform for ADFS. It is built on the open-source [shadcn Dashboard + Landing Page Template](https://github.com/shadcnstore/shadcn-dashboard-landing-template) by [ShadcnStore](https://shadcnstore.com), extended with authentication, a Postgres data layer and Kanban project/task features.
-
-## Features
-
-- **Projects & Tasks** — create projects, break them into tasks, drag-and-drop task boards
-- **Dashboard overview** — stats cards, activity charts, recent projects and tasks
-- **Calendar** — deadlines and task scheduling
-- **Team management** — invite members, role-based team table
-- **Settings** — profile, account and notification preferences
-- **Landing page** — marketing page built into the same app
-- **Auth** — email/password sign in and sign up via [Better Auth](https://better-auth.com)
-
-## Stack
-
-| | |
+| Layer | Implementation |
 | --- | --- |
-| Framework | Next.js 16 (App Router), React 19 |
-| Language | TypeScript |
-| Styling | Tailwind CSS v4, shadcn/ui on Base UI |
-| Database | PostgreSQL + Drizzle ORM |
-| Auth | Better Auth |
-| Tables | TanStack Table |
-| Charts | Recharts |
-| Forms | React Hook Form + Zod |
-| Drag & drop | dnd-kit |
+| Frontend | Next.js App Router, React, TypeScript, Tailwind, Base UI/shadcn |
+| API | ASP.NET Core, C#, database-backed sessions, CSRF protection |
+| Data access | Dapper with Microsoft.Data.SqlClient |
+| Application database | Locally installed SQL Server for development |
+| Directory authentication | LDAPS / StartTLS through System.DirectoryServices.Protocols |
 
-## Getting started
+Dashboard, projects, Kanban, task ordering, calendar, team administration,
+RBAC, Lab/Section scope, LDAP configuration and audit pages retain their routes
+and layouts. Profile, password, notification and integration preferences use
+the API. Account deletion verifies the current password, transfers project
+ownership transactionally and protects the last active administrator.
+External service OAuth/synchronization and the original sample API-key
+widgets were not implemented by the original application; this migration does
+not add external provider integrations or turn sample keys into API credentials.
 
-### 1. Install dependencies
+## Run locally
 
-```bash
-pnpm install
+Install .NET 10, Node.js/pnpm and SQL Server 2022 Developer or Express. Create
+an empty database named `ATLAS_V2` in your local instance using SSMS, then
+configure its connection in your shell:
+
+```powershell
+$env:ConnectionStrings__Atlas = 'Server=localhost\SQL2022DEV;Database=ATLAS_V2;Integrated Security=True;Encrypt=True;TrustServerCertificate=True'
+pnpm install --frozen-lockfile
+dotnet restore backend/Atlas.slnx --disable-parallel -m:1
+pnpm db:migrate
 ```
 
-### 2. Start the local database
+For a new demo workspace only, set `ATLAS_DEMO_PASSWORD` through your shell or
+secret manager to a password of at least 12 characters and run `pnpm db:seed`.
+Seeding preserves existing users unless explicitly invoked with `--force`.
+Migrated accounts retain their original password hashes and IDs; users sign in
+again because old sessions are deliberately revoked.
 
-Install and start Docker Desktop, then deploy PostgreSQL, apply the migrations, and
-seed the demo workspace:
+In separate shells:
 
-```bash
-pnpm db:docker:up
-```
-
-This generates local database credentials, a Better Auth secret, and a demo
-login in `.env.local`. The demo login is `nathan@aol.com` with password
-`P@ssword1`; the database is exposed only on
-localhost port `5433` to avoid conflicting with a PostgreSQL service on `5432`.
-
-| Variable | Description |
-| --- | --- |
-| `DATABASE_URL` | Generated PostgreSQL connection string |
-| `BETTER_AUTH_SECRET` | Generated local Better Auth secret |
-| `BETTER_AUTH_URL` | Base URL the app runs on, e.g. `http://localhost:3000` |
-
-## LDAP authentication
-
-LDAP is an optional authentication provider. Configure it for a seeded
-administrator or an account whose ATLAS role includes `Administrator`.
-
-Set `LDAP_CONFIG_ENCRYPTION_KEY` to a long, stable secret before saving LDAP
-settings. Set `LDAP_ADMIN_EMAIL` if you need an additional email-based
-bootstrap administrator. Bind passwords and TLS CA certificates are never
-returned to the browser.
-
-1. Open **Settings > Authentication**.
-2. Enter the LDAP host, port, protocol, base/search DN, bind DN, and bind password.
-3. Save the configuration and run **Test LDAP Connection**.
-4. Optionally enter a test username to verify directory lookup.
-5. Configure group mappings and provisioning, then enable LDAP.
-
-LDAPS or StartTLS is recommended. Plain LDAP is blocked when secure connections
-are required. The existing email/password provider remains active when LDAP is
-disabled or unavailable.
-
-### 3. Run the app
-
-```bash
+```powershell
+pnpm api:dev
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+The API listens at `http://127.0.0.1:5080`; the frontend uses
+`http://localhost:3000`. Copy [.env.example](.env.example) to `.env.local` if
+you need to change `ATLAS_API_URL`. That URL is server-only: browsers call
+same-origin `/api/atlas/*`, and Next.js proxies requests to the API.
+No browser or Node.js code connects to SQL Server.
 
-Stop the local database without deleting its data:
-```bash
-pnpm db:docker:down
-```
+Development defaults use Windows authentication against
+`localhost\SQL2022DEV/ATLAS_V2`. Override the connection for another instance.
+Production has no default connection string: supply secure configuration.
 
-The setup skips demo seeding when the database already contains users, so
-re-running it does not erase existing data.
+## Validation
 
-## Scripts
-
-| Script | Description |
-| --- | --- |
-| `pnpm dev` | Start the development server |
-| `pnpm build` | Production build |
-| `pnpm start` | Start the production server |
-| `pnpm lint` | Run ESLint |
-| `pnpm typecheck` | Run `tsc --noEmit` |
-| `pnpm test:ui` | Run Playwright UI smoke tests |
-| `pnpm test:ui:headed` | Run Playwright UI tests in a visible browser |
-| `pnpm db:generate` | Generate Drizzle migrations |
-| `pnpm db:migrate` | Run migrations |
-| `pnpm db:push` | Push schema directly |
-| `pnpm db:studio` | Open Drizzle Studio |
-| `pnpm db:seed` | Seed sample data |
-| `pnpm db:seed:auth` | Seed auth users |
-| `pnpm db:docker:up` | Start local PostgreSQL, apply schema, and seed a demo login |
-| `pnpm db:docker:down` | Stop the local PostgreSQL container |
-
-## UI testing
-
-Install the Playwright Chromium browser once, then run the UI tests:
-
-```bash
-pnpm exec playwright install chromium
+```powershell
+pnpm api:build
+pnpm build
+pnpm typecheck
+pnpm lint
+pnpm db:verify
+pnpm test:backend
 pnpm test:ui
 ```
 
-Playwright starts a dedicated Next.js development server on port `3100`.
-The smoke tests cover public navigation, sign-in form validation, and the
-signed-out dashboard redirect; they do not require a seeded database.
+Backend integration tests require a separate migrated and seeded database
+named `ATLAS_MigrationVerification` by default, plus Docker for the disposable
+LDAP fixture. Set `ATLAS_TEST_CONNECTION` to use another dedicated database
+whose name contains `Verification`. See the [backend guide](backend/README.md)
+for setup and deployment requirements.
 
-## License
+Stop the API before rebuilding or running backend tests on Windows to avoid
+locking its executable. To test the production frontend after a build, set
+`ATLAS_UI_TEST_PRODUCTION=true` before running `pnpm test:ui`.
 
-MIT
+Browser tests require the API running and use port 3100 for Next.js. They
+create and remove temporary application records. Set `ATLAS_UI_TEST_EMAIL`
+and `ATLAS_UI_TEST_PASSWORD` for your test workspace; the defaults match the
+original migrated local demo account. Use a disposable local workspace for tests.
+
+`pnpm api:types` regenerates TypeScript contracts from the running development
+API. Runtime Zod validation checks the responses used by existing UI components.
+
+## Migration and recovery
+
+[progress.md](progress.md) records the eight stages, tests, file groups,
+decisions and historical failures.
+[The source transfer tool](tools/atlas-data-migrator/README.md) reads a
+PostgreSQL snapshot in a read-only transaction and streams it to the Dapper
+importer. Its optional source driver is isolated from application dependencies.
+
+The original PostgreSQL Docker volume was preserved. A database dump, archived
+source configuration and the original tracked repository are also retained in
+the local ignored `.backups` folder with a restricted Windows ACL. The dump
+was restored into a separate verification database successfully. Keep these
+backups until operational sign-off. Do not delete or modify the original volume.
+
+## Attribution
+
+The interface is based on the open-source
+[shadcn Dashboard + Landing Page Template](https://github.com/shadcnstore/shadcn-dashboard-landing-template)
+by [ShadcnStore](https://shadcnstore.com), extended for ATLAS.

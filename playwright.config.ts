@@ -20,13 +20,12 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm exec next dev -H 127.0.0.1 -p 3100",
+    command: process.env.ATLAS_UI_TEST_PRODUCTION ? "pnpm exec next start -H 127.0.0.1 -p 3100" : "pnpm exec next dev -H 127.0.0.1 -p 3100",
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
-      BETTER_AUTH_URL: baseURL,
-      ATLAS_PLAYWRIGHT: "true",
+      ATLAS_PLAYWRIGHT: process.env.ATLAS_UI_TEST_PRODUCTION ? "" : "true",
     },
   },
 })

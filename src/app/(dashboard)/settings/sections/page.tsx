@@ -15,7 +15,7 @@ import {
   getLabCodes,
   getSectionCodes,
   updateSectionCode,
-} from "@/db/actions/org"
+} from "@/lib/api/org"
 
 type Lab = Awaited<ReturnType<typeof getLabCodes>>[number]
 type Section = Awaited<ReturnType<typeof getSectionCodes>>[number]
@@ -39,7 +39,10 @@ export default function SectionCodeManagementPage() {
   }
 
   React.useEffect(() => {
-    refresh().catch((error) =>
+    Promise.all([getLabCodes(true), getSectionCodes(undefined, true)]).then(([nextLabs, nextSections]) => {
+      setLabs(nextLabs)
+      setSections(nextSections)
+    }).catch((error) =>
       toast.add({
         type: "error",
         title: "Could not load organizational codes",

@@ -29,7 +29,8 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Upload } from "lucide-react"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { api } from "@/lib/api/client"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "@/components/ui/toast"
 import { Logo } from "@/components/logo"
@@ -72,7 +73,22 @@ export default function UserSettingsPage() {
     },
   })
 
-  function onSubmit(data: UserFormValues) {
+  useEffect(() => {
+    let active = true
+    api<{ user: { name: string; email: string; image: string | null }; profile: (UserFormValues & { profileImage?: string | null }) | null }>("/settings/profile")
+      .then((data) => {
+        if (!active) return
+        const parts = data.user.name.split(" ")
+        form.reset(data.profile ?? { firstName: parts[0], lastName: parts.slice(1).join(" "), email: data.user.email })
+        setProfileImage(data.user.image)
+        setUseDefaultIcon(!data.user.image)
+      }).catch((error: unknown) => toast.add({ type: "error", title: "Could not load profile", description: error instanceof Error ? error.message : "Please try again." }))
+    return () => { active = false }
+  }, [form])
+
+  async function onSubmit(data: UserFormValues) {
+    try { await api("/settings/profile", "POST", { ...data, profileImage }) }
+    catch (error) { toast.add({ type: "error", title: "Could not save profile", description: error instanceof Error ? error.message : "Please try again." }); return }
     toast.add({
       type: "success",
       title: "Profile updated",

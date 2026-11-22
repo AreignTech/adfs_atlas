@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api/client"
 import {
   Field,
   FieldError,
@@ -40,7 +41,7 @@ export function LoginForm({
   const [ldapError, setLdapError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
-    fetch("/api/auth/ldap/status")
+    fetch("/api/atlas/auth/ldap/status")
       .then((response) => response.json())
       .then((status: { enabled?: boolean }) => {
         setLdapEnabled(Boolean(status.enabled))
@@ -74,21 +75,7 @@ export function LoginForm({
     }
     setLdapPending(true)
     setLdapError(null)
-    fetch("/api/auth/ldap", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: values.email,
-        password: values.password,
-      }),
-    })
-      .then(async (response) => {
-        const data = await response.json()
-        if (!response.ok) {
-          throw new Error(data.error || "Directory authentication failed.")
-        }
-        return data
-      })
+    api("/auth/ldap", "POST", { username: values.email, password: values.password })
       .then(() => {
         window.location.assign(redirectTo)
       })

@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -22,6 +22,13 @@
 
 # production
 /build
+/.backups/
+/backend/source-copy-volume.txt
+
+# .NET build outputs and local diagnostics
+/backend/**/bin/
+/backend/**/obj/
+/backend/*-diagnostic.log
 
 # misc
 .DS_Store

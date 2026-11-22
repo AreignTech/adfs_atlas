@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/toast"
-import { getRbacAudit } from "@/db/actions/rbac"
+import { getRbacAudit } from "@/lib/api/rbac"
 
 export default function RbacAuditPage() {
   const [records, setRecords] = React.useState<

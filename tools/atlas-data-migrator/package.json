@@ -1,0 +1,7 @@
+{
+  "name": "atlas-source-data-migrator",
+  "private": true,
+  "type": "module",
+  "description": "Offline PostgreSQL source reader only; application database access uses Dapper and SQL Server.",
+  "dependencies": { "pg": "8.23.1" }
+}

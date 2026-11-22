@@ -31,8 +31,8 @@ import {
 } from "@/components/ui/select"
 import { toast } from "@/components/ui/toast"
 import { useFlowBoard } from "@/data/flowboard-store"
-import { getLabCodes, getSectionCodes } from "@/db/actions/org"
-import { getRbacRoles } from "@/db/actions/rbac"
+import { getLabCodes, getSectionCodes } from "@/lib/api/org"
+import { getRbacRoles } from "@/lib/api/rbac"
 
 const inviteSchema = z.object({
   name: z.string().min(2, "Enter their full name."),

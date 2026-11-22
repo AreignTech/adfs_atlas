@@ -12,7 +12,7 @@ import {
 } from "@/components/theme-customizer"
 import { useSidebarConfig } from "@/hooks/use-sidebar-config"
 import { FlowBoardProvider } from "@/data/flowboard-store"
-import type { WorkspaceData } from "@/db/queries/flowboard"
+import type { WorkspaceData } from "@/lib/api/workspace"
 
 /**
  * Client shell. The data it works with is loaded by the server layout and
@@ -42,6 +42,7 @@ export function DashboardShell({
     <FlowBoardProvider
       initialData={initialData}
       isAdministrator={isAdministrator}
+      currentUserEmail={sessionUser.email}
     >
       <SidebarProvider
         style={

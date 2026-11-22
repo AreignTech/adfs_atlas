@@ -8,7 +8,7 @@ import {
   deleteProjectAction,
   setProjectStatusAction,
   updateProjectAction,
-} from "@/db/actions/projects"
+} from "@/lib/api/projects"
 import {
   createTaskAction,
   deleteTaskAction,
@@ -16,14 +16,14 @@ import {
   reorderTasksAction,
   setTaskStatusAction,
   updateTaskAction,
-} from "@/db/actions/tasks"
+} from "@/lib/api/tasks"
 import {
   inviteMemberAction,
   removeMemberAction,
   setMemberStatusAction,
-} from "@/db/actions/members"
-import { assignRbacRole } from "@/db/actions/rbac"
-import type { WorkspaceData } from "@/db/queries/flowboard"
+} from "@/lib/api/members"
+import { assignRbacRole } from "@/lib/api/rbac"
+import type { WorkspaceData } from "@/lib/api/workspace"
 import {
   getProjectProgress,
   getTaskStats,
@@ -39,8 +39,8 @@ import {
  * Client-side view of the workspace.
  *
  * The server layout loads the rows once and passes them in as `initialData`.
- * Mutations call server actions and then update local state, so the UI stays
- * responsive while PostgreSQL stays the source of truth.
+ * Mutations call the .NET API and update local state optimistically while
+ * SQL Server remains the source of truth.
  *
  * The database itself is never imported here.
  */
@@ -133,10 +133,12 @@ function errorMessage(error: unknown, fallback: string) {
 export function FlowBoardProvider({
   initialData,
   isAdministrator = false,
+  currentUserEmail,
   children,
 }: {
   initialData: WorkspaceData
   isAdministrator?: boolean
+  currentUserEmail: string
   children: React.ReactNode
 }) {
   const router = useRouter()
@@ -363,7 +365,7 @@ export function FlowBoardProvider({
       projects,
       tasks,
       members,
-      currentMember: members[0],
+      currentMember: members.find((member) => member.email === currentUserEmail)!,
       isAdministrator,
       taskStats: getTaskStats(tasks),
       actions,
@@ -381,7 +383,7 @@ export function FlowBoardProvider({
       projectsForMember: (memberId) =>
         projects.filter((project) => project.memberIds.includes(memberId)),
     }),
-    [projects, tasks, members, actions, isAdministrator]
+    [projects, tasks, members, actions, isAdministrator, currentUserEmail]
   )
 
   return (

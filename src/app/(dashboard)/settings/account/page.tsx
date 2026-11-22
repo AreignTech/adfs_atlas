@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { api } from "@/lib/api/client"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
@@ -50,6 +52,7 @@ const passwordSchema = z
 type PasswordFormValues = z.infer<typeof passwordSchema>
 
 export default function SecuritySettings() {
+  const router = useRouter()
   const { currentMember } = useFlowBoard()
   const form = useForm<PasswordFormValues>({
     resolver: zodResolver(passwordSchema),
@@ -60,8 +63,11 @@ export default function SecuritySettings() {
     },
   })
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deletePassword, setDeletePassword] = useState("")
 
-  function onSubmit() {
+  async function onSubmit(values: PasswordFormValues) {
+    try { await api("/auth/password", "POST", { currentPassword: values.currentPassword, newPassword: values.newPassword }) }
+    catch (error) { toast.add({ type: "error", title: "Could not update password", description: error instanceof Error ? error.message : "Please try again." }); return }
     toast.add({
       type: "success",
       title: "Password updated",
@@ -229,10 +235,15 @@ export default function SecuritySettings() {
           <DialogHeader>
             <DialogTitle>Delete your account?</DialogTitle>
             <DialogDescription>
-              This permanently removes {currentMember.email}, every project you
-              own and all tasks assigned to you. It cannot be undone.
+              This permanently removes {currentMember.email}. Projects transfer
+              to an eligible teammate and task assignments are cleared. Deletion
+              is blocked if no successor exists or you are the last active administrator.
             </DialogDescription>
           </DialogHeader>
+          <Field>
+            <FieldLabel htmlFor="delete-account-password">Current password</FieldLabel>
+            <Input id="delete-account-password" type="password" autoComplete="current-password" value={deletePassword} onChange={(event) => setDeletePassword(event.target.value)} />
+          </Field>
           <DialogFooter>
             <Button
               variant="outline"
@@ -244,14 +255,10 @@ export default function SecuritySettings() {
             <Button
               variant="destructive"
               className="cursor-pointer"
-              onClick={() => {
-                setDeleteOpen(false)
-                toast.add({
-                  type: "info",
-                  title: "Deletion requested",
-                  description:
-                    "An email confirmation would be sent once accounts are enabled.",
-                })
+              disabled={!deletePassword}
+              onClick={async () => {
+                try { await api("/auth/delete-account", "POST", { currentPassword: deletePassword }); router.replace("/sign-in"); router.refresh() }
+                catch (error) { toast.add({ type: "error", title: "Could not delete account", description: error instanceof Error ? error.message : "Please try again." }) }
               }}
             >
               Delete permanently

@@ -34,7 +34,7 @@ import {
   projectStatuses,
   type Project,
 } from "@/data/flowboard"
-import { getLabCodes, getSectionCodes } from "@/db/actions/org"
+import { getLabCodes, getSectionCodes } from "@/lib/api/org"
 
 const projectFormSchema = z.object({
   name: z.string().min(2, "Give the project a name."),

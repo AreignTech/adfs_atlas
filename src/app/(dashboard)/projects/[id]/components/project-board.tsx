@@ -102,11 +102,11 @@ export function ProjectBoard() {
     })
   )
 
-  React.useEffect(() => {
-    if (!activeTaskId) {
-      setBoardTasks(projectId ? tasksForProject(projectId) : [])
-    }
-  }, [projectId, tasksForProject, activeTaskId])
+  const [syncedBoard, setSyncedBoard] = React.useState({ projectId, tasksForProject })
+  if (!activeTaskId && (syncedBoard.projectId !== projectId || syncedBoard.tasksForProject !== tasksForProject)) {
+    setSyncedBoard({ projectId, tasksForProject })
+    setBoardTasks(projectId ? tasksForProject(projectId) : [])
+  }
 
   const project = projectId ? projectById(projectId) : undefined
 
@@ -376,6 +376,7 @@ export function ProjectBoard() {
 
           <TabsContent value="board" className="mt-4">
             <DndContext
+              id={"project-board-" + project.id}
               sensors={sensors}
               collisionDetection={closestCorners}
               onDragStart={handleDragStart}
@@ -550,6 +551,7 @@ function KanbanColumn({
  return (
    <Card
      ref={setNodeRef}
+     data-testid={"column-" + status}
      size="sm"
      className={cn(
        "gap-3 bg-muted/30 transition-colors",
@@ -620,6 +622,7 @@ function SortableTaskCard({
  return (
    <button
      ref={setNodeRef}
+     data-testid={"task-" + task.id}
      type="button"
      {...attributes}
      {...listeners}

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
+import { api } from "@/lib/api/client"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
@@ -138,11 +139,23 @@ export default function NotificationSettings() {
       productNews: false,
     },
   })
-  const [permission, setPermission] = useState<NotificationPermission | "unsupported">(
-    typeof Notification === "undefined" ? "unsupported" : Notification.permission
+  const browserPermission = useSyncExternalStore<NotificationPermission | "unsupported">(
+    () => () => {},
+    () => typeof Notification === "undefined" ? "unsupported" : Notification.permission,
+    () => "unsupported"
   )
+  const [requestedPermission, setPermission] = useState<NotificationPermission | null>(null)
+  const permission = requestedPermission ?? browserPermission
 
-  function onSubmit() {
+  useEffect(() => {
+    api<{ value: unknown }>("/settings/notifications").then(({ value }) => {
+      const saved = notificationsFormSchema.safeParse(value)
+      if (saved.success) form.reset(saved.data)
+    }).catch((error: unknown) => toast.add({ type: "error", title: "Could not load preferences", description: error instanceof Error ? error.message : "Please try again." }))
+  }, [form])
+  async function onSubmit(values: NotificationsFormValues) {
+    try { await api("/settings/notifications", "POST", values) }
+    catch (error) { toast.add({ type: "error", title: "Could not save preferences", description: error instanceof Error ? error.message : "Please try again." }); return }
     toast.add({
       type: "success",
       title: "Notification preferences saved",

@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from "next/server"
-import { getSessionCookie } from "better-auth/cookies"
 
 /** Routes that require a signed-in user. */
 const PROTECTED_PREFIXES = [
@@ -26,7 +25,7 @@ export function proxy(request: NextRequest) {
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   )
 
-  if (isProtected && !getSessionCookie(request)) {
+  if (isProtected && !request.cookies.get("atlas.session_token")?.value) {
     /**
      * Fast path: no session cookie at all, so send them straight to sign-in as
      * an HTTP redirect — nothing is streamed and no loading spinner appears.
@@ -55,7 +54,7 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes, including Better Auth's own endpoints)
+     * - api (API routes and the backend proxy)
      * - _next/static, _next/image (Next internals)
      * - favicon.ico
      */

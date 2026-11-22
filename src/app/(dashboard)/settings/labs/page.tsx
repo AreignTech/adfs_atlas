@@ -13,7 +13,7 @@ import {
   deleteLabCode,
   getLabCodes,
   updateLabCode,
-} from "@/db/actions/org"
+} from "@/lib/api/org"
 
 type Lab = Awaited<ReturnType<typeof getLabCodes>>[number]
 
@@ -30,7 +30,7 @@ export default function LabCodeManagementPage() {
   }
 
   React.useEffect(() => {
-    refresh().catch((error) =>
+    getLabCodes(true).then(setLabs).catch((error) =>
       toast.add({
         type: "error",
         title: "Could not load Lab Codes",

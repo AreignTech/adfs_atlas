@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return [{ source: "/api/atlas/:path*", destination: `${process.env.ATLAS_API_URL ?? "http://127.0.0.1:5080"}/api/:path*` }]
+  },
   ...(
     process.env.ATLAS_PLAYWRIGHT || process.env.FLOWBOARD_PLAYWRIGHT
       ? { distDir: ".next-playwright" }

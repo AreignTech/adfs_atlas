@@ -69,12 +69,12 @@ import { toast } from "@/components/ui/toast"
 import { cn } from "@/lib/utils"
 import { useFlowBoard } from "@/data/flowboard-store"
 import { type Member, type MemberStatus } from "@/data/flowboard"
-import { getRbacRoles } from "@/db/actions/rbac"
+import { getRbacRoles } from "@/lib/api/rbac"
 import {
   assignUserOrg,
   getLabCodes,
   getSectionCodes,
-} from "@/db/actions/org"
+} from "@/lib/api/org"
 
 const statusClasses: Record<MemberStatus, string> = {
   Active: "border-success/40 text-success bg-success/5",
@@ -115,7 +115,9 @@ export function TeamTable() {
     Record<string, { labId: string; sectionId: string }>
   >({})
 
-  useEffect(() => {
+  const [syncedMembers, setSyncedMembers] = useState(members)
+  if (syncedMembers !== members) {
+    setSyncedMembers(members)
     setOrgDrafts((current) => {
       const next = { ...current }
       for (const member of members) {
@@ -128,7 +130,7 @@ export function TeamTable() {
       }
       return next
     })
-  }, [members])
+  }
 
   useEffect(() => {
     if (isAdministrator) {
@@ -537,7 +539,7 @@ export function TeamTable() {
         },
       },
     ],
-    [projects, workloadFor, maxWorkload, actions]
+    [projects, workloadFor, maxWorkload, actions, isAdministrator, labCodes, orgDrafts, rbacRoles, sectionCodes]
   )
 
   const table = useTable({

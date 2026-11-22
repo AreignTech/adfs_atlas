@@ -20,7 +20,7 @@ import {
   getRbacPermissions,
   getRbacRoles,
   updateRbacRole,
-} from "@/db/actions/rbac"
+} from "@/lib/api/rbac"
 
 type Role = Awaited<ReturnType<typeof getRbacRoles>>[number]
 type Permission = Awaited<ReturnType<typeof getRbacPermissions>>[number]
@@ -44,7 +44,10 @@ export default function RoleManagementPage() {
   }
 
   React.useEffect(() => {
-    refresh()
+    Promise.all([getRbacRoles(), getRbacPermissions()]).then(([nextRoles, nextPermissions]) => {
+      setRoles(nextRoles)
+      setPermissions(nextPermissions)
+    })
       .catch((error) => {
         toast.add({
           type: "error",
