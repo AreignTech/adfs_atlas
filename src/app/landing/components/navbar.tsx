@@ -32,6 +32,9 @@ export function LandingNavbar() {
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-2">
           <ModeToggle variant="ghost" />
+          <Button nativeButton={false} render={<Link href="/sign-up" />} className="cursor-pointer">
+            Sign Up
+          </Button>
           <Button
             variant="ghost"
             className="cursor-pointer"
@@ -105,6 +108,10 @@ export function LandingNavbar() {
 
               {/* Footer Actions */}
               <div className="flex flex-col border-t p-6 gap-4">
+                <Button size="lg" className="w-full cursor-pointer" nativeButton={false}
+                  render={<Link href="/sign-up" />} onClick={() => setIsOpen(false)}>
+                  Sign Up
+                </Button>
                 <Button
                   variant="outline"
                   size="lg"

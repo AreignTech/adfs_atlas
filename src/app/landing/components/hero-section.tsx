@@ -55,6 +55,10 @@ export function HeroSection() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+            <Button size="lg" variant="outline" className="text-base cursor-pointer"
+              nativeButton={false} render={<Link href="/sign-up" />}>
+              Create an Account
+            </Button>
             <Button
               size="lg"
               className="text-base cursor-pointer"

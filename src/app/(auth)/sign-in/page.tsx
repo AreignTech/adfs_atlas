@@ -37,6 +37,9 @@ export default async function SignInPage({
           ATLAS
         </Link>
         <LoginForm redirectTo={target} />
+        <p className="text-center text-sm text-muted-foreground">
+          Don&apos;t have an account? <Link href="/sign-up" className="text-primary underline underline-offset-4">Sign Up</Link>
+        </p>
       </div>
     </div>
   )

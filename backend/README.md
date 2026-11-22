@@ -129,7 +129,10 @@ mapping replacements and connection-test status commit with their audit entries.
 
 Passwords retain Better Auth scrypt compatibility (NFKC, N=16384, r=16, p=1,
 64-byte output). New identity IDs use random UUIDs. Registration remains disabled
-by default; it can be enabled through `Atlas__AllowSelfRegistration`.
+in production by default; local Development configuration enables it. Set
+`Atlas__AllowSelfRegistration=true` to enable it in another environment.
+The `/sign-up` page uses the existing registration endpoint and signs new users
+in with the Users role. Email verification delivery is not configured.
 
 ## LDAP
 

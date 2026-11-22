@@ -18,7 +18,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/sign-in", request.url))
   }
   if (pathname === "/register") {
-    return NextResponse.redirect(new URL("/sign-in", request.url))
+    return NextResponse.redirect(new URL("/sign-up", request.url))
   }
 
   const isProtected = PROTECTED_PREFIXES.some(

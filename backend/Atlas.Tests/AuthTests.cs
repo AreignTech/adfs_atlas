@@ -131,6 +131,50 @@ public sealed class AuthTests : IAsyncLifetime
         Assert.NotNull(await sessions.GetByTokenAsync(AuthService.HashToken(raw)));
     }
     [Fact]
+    public async Task RegistrationValidatesCreatesHashedCredentialsAndAllowsLogin()
+    {
+        await using var factory = new AtlasFactory().WithWebHostBuilder(builder =>
+            builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
+                new Dictionary<string, string?> { ["Atlas:AllowSelfRegistration"] = "true" })));
+        using var client = factory.CreateClient();
+        var email = $"registration-{Guid.NewGuid():N}@atlas.test";
+        const string password = "Registration123!";
+        string? createdId = null;
+        using var scope = factory.Services.CreateScope();
+        var users = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+        try
+        {
+            foreach (var invalid in new[] {
+                new { name = "", email, password },
+                new { name = "New User", email = "invalid@", password },
+                new { name = "New User", email, password = "short" },
+            })
+                Assert.Equal(HttpStatusCode.BadRequest, (await PostAsync(client, "/api/auth/register", invalid)).StatusCode);
+
+            var response = await PostAsync(client, "/api/auth/register", new { name = "New User", email, password, role = "Administrators" });
+            response.EnsureSuccessStatusCode();
+            var user = await users.GetByEmailAsync(email);
+            Assert.NotNull(user);
+            createdId = user.Id;
+            var account = await scope.ServiceProvider.GetRequiredService<IAccountRepository>().GetCredentialAsync(user.Id);
+            Assert.NotNull(account?.Password);
+            Assert.NotEqual(password, account.Password);
+            Assert.True(new BetterAuthPasswordHasher().Verify(account.Password, password));
+            var session = await client.GetFromJsonAsync<JsonElement>("/api/auth/session");
+            Assert.False(session.GetProperty("context").GetProperty("isAdministrator").GetBoolean());
+            Assert.Contains("Users", session.GetProperty("context").GetProperty("roleNames").EnumerateArray().Select(role => role.GetString()));
+            Assert.Equal(HttpStatusCode.Conflict, (await PostAsync(client, "/api/auth/register", new { name = "New User", email, password })).StatusCode);
+            (await PostAsync(client, "/api/auth/logout", new { })).EnsureSuccessStatusCode();
+            (await PostAsync(client, "/api/auth/login", new { email, password })).EnsureSuccessStatusCode();
+            Assert.Contains(email, await client.GetStringAsync("/api/auth/session"));
+        }
+        finally
+        {
+            var user = createdId is null ? await users.GetByEmailAsync(email) : null;
+            if ((createdId ?? user?.Id) is string id) await users.DeleteAsync(id);
+        }
+    }
+    [Fact]
     public async Task IdentityCreationRollsBackIfCredentialInsertFails()
     {
         using var scope = _factory.Services.CreateScope();

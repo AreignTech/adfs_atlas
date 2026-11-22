@@ -98,12 +98,14 @@ public sealed class AuthService : IAuthService
             throw new ForbiddenException("Self-registration is disabled.");
         }
 
-        if (string.IsNullOrWhiteSpace(request.Name) || request.Name.Trim().Length < 2)
+        if (string.IsNullOrWhiteSpace(request.Name) || request.Name.Trim().Length < 2 || request.Name.Trim().Length > 255)
         {
             throw new ValidationException("Enter your name.");
         }
 
-        if (string.IsNullOrWhiteSpace(request.Email) || !request.Email.Contains('@', StringComparison.Ordinal))
+        if (string.IsNullOrWhiteSpace(request.Email) || request.Email.Length > 255 ||
+            !System.Net.Mail.MailAddress.TryCreate(request.Email.Trim(), out var address) ||
+            address.Address != request.Email.Trim() || !address.Host.Contains('.'))
         {
             throw new ValidationException("Enter a valid email address.");
         }
