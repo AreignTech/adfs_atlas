@@ -71,6 +71,22 @@ app.Use(async (context, next) =>
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
+// Reject known oversized profile uploads before MVC sets Kestrel's streaming
+// body limit; an aborted proxy stream can otherwise turn a 413 into a 500.
+app.Use(async (context, next) =>
+{
+    if (HttpMethods.IsPost(context.Request.Method) &&
+        context.Request.Path.Equals("/api/settings/profile", StringComparison.OrdinalIgnoreCase) &&
+        context.Request.ContentLength > Atlas.Api.Controllers.SettingsController.MaxProfileRequestBytes)
+    {
+        await Results.Problem(statusCode: StatusCodes.Status413PayloadTooLarge,
+            title: "Profile photo is too large.",
+            detail: "The request is too large. Choose a JPG, PNG, GIF or WebP image no larger than 2 MB.")
+            .ExecuteAsync(context);
+        return;
+    }
+    await next();
+});
 app.Use(async (context, next) =>
 {
     if (context.Request.Path.StartsWithSegments("/api") && !HttpMethods.IsGet(context.Request.Method) && !HttpMethods.IsHead(context.Request.Method) && !HttpMethods.IsOptions(context.Request.Method))

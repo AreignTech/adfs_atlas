@@ -173,6 +173,25 @@ public sealed class AuthTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task LargeProfileRequestsAreRejectedBeforeReadingTheUploadBody()
+    {
+        var client = _factory.CreateClient();
+        (await PostAsync(client, "/api/auth/login", new { Email, password = "Compatibility123!" })).EnsureSuccessStatusCode();
+        var token = await client.GetFromJsonAsync<JsonElement>("/api/auth/csrf");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/settings/profile")
+        {
+            Content = new ByteArrayContent(new byte[Atlas.Api.Controllers.SettingsController.MaxProfileRequestBytes + 1])
+        };
+        request.Content.Headers.ContentType = new("application/json");
+        request.Headers.Add("X-ATLAS-CSRF", token.GetProperty("token").GetString());
+        var response = await client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.RequestEntityTooLarge, response.StatusCode);
+        Assert.Contains("2 MB", await response.Content.ReadAsStringAsync());
+        using var scope = _factory.Services.CreateScope();
+        Assert.Null((await scope.ServiceProvider.GetRequiredService<IUserRepository>().GetByIdAsync(_userId))!.Image);
+    }
+
+    [Fact]
     public async Task RegistrationIsDisabledAndSessionsAreStoredAsHashes()
     {
         var client = _factory.CreateClient();

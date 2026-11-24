@@ -12,13 +12,14 @@ namespace Atlas.Api.Controllers;
 [Authorize, ApiController, Route("api/settings")]
 public sealed class SettingsController(ISettingsRepository settings, IUserRepository users) : ControllerBase
 {
+    public const long MaxProfileRequestBytes = 3_000_000;
     private string UserId => ((AuthSession)HttpContext.Items["AtlasSession"]!).Context.User.Id;
     [HttpGet("profile")]
     [ProducesResponseType<Atlas.Api.Observability.ProfileDocumentation>(200)]
     public async Task<object> Profile(CancellationToken ct) => new { user = await users.GetByIdAsync(UserId, ct), profile = await settings.GetAsync(UserId, "profile", ct) };
     [HttpPost("profile")]
     [ProducesResponseType<Atlas.Api.Observability.SuccessDocumentation>(200)]
-    [RequestSizeLimit(3_000_000)]
+    [RequestSizeLimit(MaxProfileRequestBytes)]
     public async Task<object> SaveProfile(JsonElement input, CancellationToken ct)
     {
         if (input.ValueKind != JsonValueKind.Object || !input.TryGetProperty("firstName", out var first) || first.ValueKind != JsonValueKind.String || !input.TryGetProperty("lastName", out var last) || last.ValueKind != JsonValueKind.String || !input.TryGetProperty("email", out var emailValue) || emailValue.ValueKind != JsonValueKind.String) throw new ValidationException("First name, last name and email are required.");
