@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // IIS uses `next start`; Docker runs the traced standalone server instead.
+  ...(process.env.ATLAS_STANDALONE === "1" ? { output: "standalone" as const } : {}),
   async rewrites() {
     return [{ source: "/api/atlas/:path*", destination: `${process.env.ATLAS_API_URL ?? "http://127.0.0.1:5080"}/api/:path*` }]
   },

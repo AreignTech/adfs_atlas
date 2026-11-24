@@ -1,0 +1,28 @@
+services:
+  frontend:
+    image: atlas-frontend:${ATLAS_IMAGE_TAG:-local}
+    container_name: atlas-frontend
+    build:
+      context: .
+      args:
+        ATLAS_API_URL: ${ATLAS_API_URL:-http://host.docker.internal:5080}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      ATLAS_API_URL: ${ATLAS_API_URL:-http://host.docker.internal:5080}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    # Inherits the Dockerfile's public sign-in page health check.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
