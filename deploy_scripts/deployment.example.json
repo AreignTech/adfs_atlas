@@ -1,0 +1,32 @@
+{
+  "SchemaVersion": 1,
+  "ServerName": "adfs-websvr-1",
+  "InstallRoot": "C:\\Apps\\Atlas",
+  "WebsiteUrl": "https://atlasdev.adfs.alabama.gov",
+  "ApiUrl": "https://atlasdev.adfs.alabama.gov:5443",
+  "CertificateThumbprint": "REPLACE_WITH_LOCAL_MACHINE_CERTIFICATE_THUMBPRINT",
+  "ApiCertificateThumbprint": "",
+  "WebsiteName": "AtlasWeb",
+  "WebPoolName": "AtlasWeb",
+  "ApiSiteName": "AtlasApi",
+  "ApiPoolName": "AtlasApi",
+  "ApiIdentityMode": "ApplicationPoolIdentity",
+  "FrontendServiceName": "AtlasFrontend",
+  "FrontendPort": 3000,
+  "NodeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+  "PnpmVersion": "10.33.0",
+  "DatabaseName": "ATLAS_V2.1",
+  "RunMigrations": true,
+  "ManageHostsFile": true,
+  "ConfigureFirewall": true,
+  "FirewallProfiles": ["Domain", "Private"],
+  "WinSwSourcePath": "C:\\Installers\\WinSW-x64.exe",
+  "WinSwSha256": "REPLACE_WITH_VERIFIED_SHA256",
+  "HealthTimeoutSeconds": 120,
+  "Installers": [
+    { "Name": "URL Rewrite", "Kind": "Msi", "Path": "", "Sha256": "" },
+    { "Name": "ARR", "Kind": "Msi", "Path": "", "Sha256": "" },
+    { "Name": ".NET 10 Hosting Bundle", "Kind": "HostingBundle", "Path": "", "Sha256": "" },
+    { "Name": "Node.js 24 LTS", "Kind": "Msi", "Path": "", "Sha256": "" }
+  ]
+}

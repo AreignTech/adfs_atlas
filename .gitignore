@@ -50,3 +50,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local deployment configuration and DPAPI-protected secrets
+/deploy_scripts/deployment.*.json
+!/deploy_scripts/deployment.example.json
+/deploy_scripts/*.clixml
+/deploy_scripts/*.pfx

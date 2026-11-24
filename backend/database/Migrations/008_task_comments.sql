@@ -2,7 +2,7 @@ SET NOCOUNT ON;
 
 CREATE TABLE dbo.task_comment (
     id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_task_comment PRIMARY KEY
-        CONSTRAINT DF_task_comment_id DEFAULT (NEWSEQUENTIALID()),
+        CONSTRAINT DF_task_comment_id DEFAULT (NEWID()),
     task_id UNIQUEIDENTIFIER NOT NULL
         CONSTRAINT FK_task_comment_task REFERENCES dbo.task(id) ON DELETE CASCADE,
     user_id NVARCHAR(255) NOT NULL

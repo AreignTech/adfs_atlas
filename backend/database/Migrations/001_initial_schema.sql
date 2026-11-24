@@ -102,7 +102,7 @@ IF OBJECT_ID('dbo.lab_code', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.lab_code (
         id          UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_lab_code PRIMARY KEY
-            CONSTRAINT DF_lab_code_id DEFAULT (NEWSEQUENTIALID()),
+            CONSTRAINT DF_lab_code_id DEFAULT (NEWID()),
         code        NVARCHAR(40)  NOT NULL,
         name        NVARCHAR(120) NOT NULL,
         description NVARCHAR(MAX) NOT NULL CONSTRAINT DF_lab_code_description DEFAULT (N''),
@@ -118,7 +118,7 @@ IF OBJECT_ID('dbo.section_code', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.section_code (
         id          UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_section_code PRIMARY KEY
-            CONSTRAINT DF_section_code_id DEFAULT (NEWSEQUENTIALID()),
+            CONSTRAINT DF_section_code_id DEFAULT (NEWID()),
         code        NVARCHAR(40)  NOT NULL,
         name        NVARCHAR(120) NOT NULL,
         description NVARCHAR(MAX) NOT NULL CONSTRAINT DF_section_code_description DEFAULT (N''),
@@ -149,7 +149,7 @@ IF OBJECT_ID('dbo.org_audit', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.org_audit (
         id                  UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_org_audit PRIMARY KEY
-            CONSTRAINT DF_org_audit_id DEFAULT (NEWSEQUENTIALID()),
+            CONSTRAINT DF_org_audit_id DEFAULT (NEWID()),
         actor_email         NVARCHAR(255) NULL,
         action              NVARCHAR(255) NOT NULL,
         affected_user_id    NVARCHAR(255) NULL,
@@ -172,7 +172,7 @@ IF OBJECT_ID('dbo.member', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.member (
         id             UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_member PRIMARY KEY
-            CONSTRAINT DF_member_id DEFAULT (NEWSEQUENTIALID()),
+            CONSTRAINT DF_member_id DEFAULT (NEWID()),
         user_id        NVARCHAR(255) NOT NULL
             CONSTRAINT FK_member_user REFERENCES dbo.[user] (id) ON DELETE CASCADE,
         role           NVARCHAR(255) NOT NULL CONSTRAINT DF_member_role DEFAULT (N'Member'),
@@ -189,7 +189,7 @@ IF OBJECT_ID('dbo.project', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.project (
         id          UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_project PRIMARY KEY
-            CONSTRAINT DF_project_id DEFAULT (NEWSEQUENTIALID()),
+            CONSTRAINT DF_project_id DEFAULT (NEWID()),
         name        NVARCHAR(255) NOT NULL,
         [key]       NVARCHAR(10)  NOT NULL,
         description NVARCHAR(MAX) NOT NULL CONSTRAINT DF_project_description DEFAULT (N''),
@@ -229,7 +229,7 @@ IF OBJECT_ID('dbo.task', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.task (
         id           UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_task PRIMARY KEY
-            CONSTRAINT DF_task_id DEFAULT (NEWSEQUENTIALID()),
+            CONSTRAINT DF_task_id DEFAULT (NEWID()),
         reference    NVARCHAR(20) NOT NULL
             CONSTRAINT DF_task_reference DEFAULT
                 ('TSK-' + RIGHT('0000' + CAST(NEXT VALUE FOR dbo.task_reference_seq AS VARCHAR(10)), 4)),
@@ -269,7 +269,7 @@ IF OBJECT_ID('dbo.app_role', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.app_role (
         id             UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_app_role PRIMARY KEY
-            CONSTRAINT DF_app_role_id DEFAULT (NEWSEQUENTIALID()),
+            CONSTRAINT DF_app_role_id DEFAULT (NEWID()),
         name           NVARCHAR(255) NOT NULL,
         description    NVARCHAR(MAX) NOT NULL CONSTRAINT DF_app_role_description DEFAULT (N''),
         is_system_role BIT NOT NULL CONSTRAINT DF_app_role_is_system_role DEFAULT (0),
@@ -284,7 +284,7 @@ IF OBJECT_ID('dbo.app_permission', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.app_permission (
         id             UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_app_permission PRIMARY KEY
-            CONSTRAINT DF_app_permission_id DEFAULT (NEWSEQUENTIALID()),
+            CONSTRAINT DF_app_permission_id DEFAULT (NEWID()),
         permission_key NVARCHAR(100) NOT NULL,
         description    NVARCHAR(MAX) NOT NULL CONSTRAINT DF_app_permission_description DEFAULT (N''),
         created_at     DATETIMEOFFSET(7) NOT NULL CONSTRAINT DF_app_permission_created_at DEFAULT (SYSUTCDATETIME())
@@ -321,7 +321,7 @@ IF OBJECT_ID('dbo.rbac_audit', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.rbac_audit (
         id               UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_rbac_audit PRIMARY KEY
-            CONSTRAINT DF_rbac_audit_id DEFAULT (NEWSEQUENTIALID()),
+            CONSTRAINT DF_rbac_audit_id DEFAULT (NEWID()),
         actor_user_id    NVARCHAR(255) NULL,
         actor_email      NVARCHAR(255) NULL,
         action           NVARCHAR(255) NOT NULL,
@@ -380,7 +380,7 @@ IF OBJECT_ID('dbo.ldap_identity', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.ldap_identity (
         id                   UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_ldap_identity PRIMARY KEY
-            CONSTRAINT DF_ldap_identity_id DEFAULT (NEWSEQUENTIALID()),
+            CONSTRAINT DF_ldap_identity_id DEFAULT (NEWID()),
         user_id              NVARCHAR(255) NOT NULL
             CONSTRAINT FK_ldap_identity_user REFERENCES dbo.[user] (id) ON DELETE CASCADE,
         directory_identifier NVARCHAR(1000) NOT NULL,
@@ -396,7 +396,7 @@ IF OBJECT_ID('dbo.ldap_group_mapping', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.ldap_group_mapping (
         id         UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_ldap_group_mapping PRIMARY KEY
-            CONSTRAINT DF_ldap_group_mapping_id DEFAULT (NEWSEQUENTIALID()),
+            CONSTRAINT DF_ldap_group_mapping_id DEFAULT (NEWID()),
         ldap_group NVARCHAR(1000) NOT NULL,
         atlas_role NVARCHAR(100)  NOT NULL,
         enabled    BIT NOT NULL CONSTRAINT DF_ldap_group_mapping_enabled DEFAULT (1),
@@ -408,7 +408,7 @@ IF OBJECT_ID('dbo.ldap_audit', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.ldap_audit (
         id            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_ldap_audit PRIMARY KEY
-            CONSTRAINT DF_ldap_audit_id DEFAULT (NEWSEQUENTIALID()),
+            CONSTRAINT DF_ldap_audit_id DEFAULT (NEWID()),
         event_type    NVARCHAR(255) NOT NULL,
         username      NVARCHAR(255) NULL,
         administrator NVARCHAR(255) NULL,

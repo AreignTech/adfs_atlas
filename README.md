@@ -3,6 +3,8 @@
 ATLAS keeps its Next.js 16 / React 19 interface and uses an ASP.NET Core API,
 Dapper, and Microsoft SQL Server for authentication, authorization, and data.
 
+For automated Windows IIS deployment, use the [PowerShell deployment package](deploy_scripts/README.md).
+
 | Layer | Implementation |
 | --- | --- |
 | Frontend | Next.js App Router, React, TypeScript, Tailwind, Base UI/shadcn |
