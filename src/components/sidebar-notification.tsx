@@ -38,7 +38,7 @@ export function SidebarNotification() {
             <Link href="/users" className="text-primary underline">
               Manage the team
             </Link>{" "}
-            or resend their invitation.
+            to create and share invitation links.
           </p>
         </div>
       </CardContent>

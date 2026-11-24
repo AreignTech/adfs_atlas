@@ -6,12 +6,6 @@ namespace Atlas.Infrastructure.Data;
 
 public sealed record SeedResult(bool Skipped, int Users, int Members, int Projects, int Tasks, int Accounts);
 
-/// <summary>
-/// Reproduces the PostgreSQL demo workspace (scripts/seed.ts + seed-auth.ts)
-/// on SQL Server. Reference roles/permissions come from migration 002.
-///
-/// Safe to re-run: existing data is preserved unless <c>force</c> is set.
-/// </summary>
 public sealed class DatabaseSeeder
 {
     private readonly IDbConnectionFactory _connectionFactory;
@@ -53,81 +47,26 @@ public sealed class DatabaseSeeder
     private static readonly Person[] People =
     [
         new("Nathan", "nathan@aol.com", "Administrator", "active", -244, 0.4),
-        new("Daniel Okafor", "daniel.okafor@flowboard.app", "Engineering Lead", "active", -224, 1.2),
-        new("Priya Raman", "priya.raman@flowboard.app", "Product Designer", "active", -177, 18),
-        new("Tom Becker", "tom.becker@flowboard.app", "Frontend Engineer", "active", -134, 1.8),
-        new("Sofia Alvarez", "sofia.alvarez@flowboard.app", "QA Engineer", "away", -110, 41),
-        new("Kenji Watanabe", "kenji.watanabe@flowboard.app", "Backend Engineer", "active", -59, 2.3),
-        new("Nora Lindqvist", "nora.lindqvist@flowboard.app", "UX Researcher", "invited", -8, 72),
-        new("Liam O'Connell", "liam.oconnell@flowboard.app", "Data Analyst", "active", -13, 0.8),
+        new("Daniel Jones", "daniel.jones@adfs.alabama.gov", "Forensic Scientist", "active", -224, 1.2),
+        new("Sean Eiland", "sean.eiland@adfs.alabama.gov", "Network Engineer", "active", -177, 18),
+        new("Bob Buel", "bob.buel@adfs.alabama.gov", "IT Director", "active", -134, 1.8),
+        new("Paul Clanton", "paul.clanton@adfs.alabama.gov", "IT Supervisor", "away", -110, 41),
+        new("Nathan Nguyen", "nathan.nguyen@adfs.alabama.gov", "Application Developer", "active", -59, 2.3),
+        new("Mary Burns", "mary.burns@adfs.alabama.gov", "DC Section Chief", "invited", -8, 72),
+        new("Tim McSpadden", "tim.mcspadden@adfs.alabama.gov", "Mobile Lab Director", "active", -13, 0.8),
     ];
 
     private static readonly ProjectSeed[] Projects =
     [
-        new("MOB", "Mobile App Redesign",
-            "Rebuild the iOS and Android clients on the new design system and ship offline support.",
-            "active", "var(--chart-1)", "nathan@aol.com",
-            ["nathan@aol.com", "priya.raman@flowboard.app", "tom.becker@flowboard.app", "nora.lindqvist@flowboard.app"], -38, 21),
-        new("MKT", "Q3 Marketing Campaign",
-            "Multi-channel launch campaign across paid social, lifecycle email and the partner blog.",
-            "active", "var(--chart-2)", "priya.raman@flowboard.app",
-            ["priya.raman@flowboard.app", "sofia.alvarez@flowboard.app", "liam.oconnell@flowboard.app"], -24, 12),
-        new("BIL", "Billing & Invoicing",
-            "Usage-based billing, proration on plan changes and a self-serve invoice archive.",
-            "active", "var(--chart-3)", "daniel.okafor@flowboard.app",
-            ["daniel.okafor@flowboard.app", "kenji.watanabe@flowboard.app"], -52, 34),
-        new("POR", "Customer Portal v2",
-            "Self-service portal for invoices, seats, saved views and audit log exports.",
-            "planning", "var(--chart-4)", "nathan@aol.com",
-            ["nathan@aol.com", "tom.becker@flowboard.app", "nora.lindqvist@flowboard.app", "liam.oconnell@flowboard.app"], -5, 6),
-        new("DAT", "Data Warehouse Migration",
-            "Move reporting workloads off the primary cluster onto the new warehouse schema.",
-            "on-hold", "var(--chart-5)", "daniel.okafor@flowboard.app",
-            ["daniel.okafor@flowboard.app", "kenji.watanabe@flowboard.app", "liam.oconnell@flowboard.app"], -70, 47),
-        new("BRD", "Brand Refresh",
-            "New identity, marketing site refresh and updated product iconography.",
-            "completed", "var(--chart-2)", "priya.raman@flowboard.app",
-            ["priya.raman@flowboard.app", "nora.lindqvist@flowboard.app"], -96, -9),
+        new("MOB", "Mobile Lab PC installation",
+            "Installing PC hardware and software for the mobile lab.",
+            "active", "var(--chart-1)", "nathan.nguyen@adfs.alabama.gov",
+            ["nathan.nguyen@adfs.alabama.gov", "tim.mcspadden@adfs.alabama.gov", "paul.clanton@adfs.alabama.gov", "sean.eiland@adfs.alabama.gov"], -38, 21),
     ];
 
     private static readonly TaskSeed[] Tasks =
     [
-        new("Finalise onboarding flow copy", "MOB", "completed", "medium", "nathan@aol.com", -12),
-        new("Implement offline task queue", "MOB", "in-progress", "urgent", "tom.becker@flowboard.app", 2),
-        new("Audit colour contrast in dark mode", "MOB", "todo", "medium", "priya.raman@flowboard.app", 5),
-        new("Ship push notification settings", "MOB", "in-review", "high", "tom.becker@flowboard.app", 3),
-        new("Prototype gesture navigation", "MOB", "in-progress", "high", "nora.lindqvist@flowboard.app", 9),
-        new("Migrate build pipeline to EAS", "MOB", "todo", "low", "daniel.okafor@flowboard.app", 17),
-        new("Regression pass on Android 15", "MOB", "todo", "medium", "sofia.alvarez@flowboard.app", 12),
-        new("Book the paid social budget", "MKT", "completed", "high", "liam.oconnell@flowboard.app", -8),
-        new("Write lifecycle email sequence", "MKT", "in-progress", "medium", "priya.raman@flowboard.app", 4),
-        new("Build campaign attribution report", "MKT", "todo", "high", "liam.oconnell@flowboard.app", 7),
-        new("Produce launch video cutdowns", "MKT", "in-review", "medium", "sofia.alvarez@flowboard.app", 1),
-        new("Review partner blog placements", "MKT", "todo", "low", "priya.raman@flowboard.app", 10),
-        new("Set up UTM naming convention", "MKT", "completed", "medium", "liam.oconnell@flowboard.app", -3),
-        new("Model proration on plan change", "BIL", "in-progress", "urgent", "kenji.watanabe@flowboard.app", 6),
-        new("Invoice PDF redesign", "BIL", "in-review", "medium", "daniel.okafor@flowboard.app", 3),
-        new("Add usage metering to API gateway", "BIL", "todo", "high", "kenji.watanabe@flowboard.app", 14),
-        new("Backfill historical invoices", "BIL", "todo", "medium", "kenji.watanabe@flowboard.app", 19),
-        new("Dunning emails for failed payments", "BIL", "in-progress", "high", "nathan@aol.com", 8),
-        new("Localise billing strings (DE, FR)", "BIL", "todo", "low", "priya.raman@flowboard.app", 24),
-        new("Tax rate lookup integration", "BIL", "todo", "medium", "daniel.okafor@flowboard.app", 27),
-        new("Interview five portal power users", "POR", "in-progress", "high", "nora.lindqvist@flowboard.app", 2),
-        new("Draft saved-views information architecture", "POR", "in-review", "medium", "nathan@aol.com", -1),
-        new("Prototype audit log export", "POR", "todo", "medium", "tom.becker@flowboard.app", 4),
-        new("Seat management API contract", "POR", "todo", "high", "kenji.watanabe@flowboard.app", 5),
-        new("Accessibility audit of portal forms", "POR", "todo", "low", "sofia.alvarez@flowboard.app", 6),
-        new("Inventory reporting queries", "DAT", "completed", "medium", "kenji.watanabe@flowboard.app", -10),
-        new("Size the new warehouse cluster", "DAT", "todo", "urgent", "daniel.okafor@flowboard.app", 22),
-        new("Map legacy report dependencies", "DAT", "todo", "high", "liam.oconnell@flowboard.app", 29),
-        new("Write backfill runbook", "DAT", "todo", "medium", "kenji.watanabe@flowboard.app", 36),
-        new("Approve new wordmark", "BRD", "completed", "high", "nathan@aol.com", -14),
-        new("Update marketing site imagery", "BRD", "completed", "medium", "priya.raman@flowboard.app", -11),
-        new("Publish brand guidelines", "BRD", "completed", "low", "nora.lindqvist@flowboard.app", -9),
-        new("Resolve flaky checkout test", "BIL", "in-progress", "urgent", "sofia.alvarez@flowboard.app", -4),
-        new("Fix calendar timezone drift", "POR", "todo", "urgent", "tom.becker@flowboard.app", -2),
-        new("Correct overdue badge contrast", "MOB", "in-progress", "high", "priya.raman@flowboard.app", -1),
-        new("Verify CSV export encoding", "DAT", "in-review", "medium", "liam.oconnell@flowboard.app", 3),
+        new("Finalize pc install", "MOB", "completed", "medium", "nathan@aol.com", -12),
     ];
 
     public async Task<SeedResult> SeedDemoAsync(

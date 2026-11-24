@@ -93,7 +93,7 @@ public sealed class AuthService : IAuthService
         string? userAgent,
         CancellationToken cancellationToken = default)
     {
-        if (!_options.AllowSelfRegistration)
+        if (!_options.AllowSelfRegistration && string.IsNullOrWhiteSpace(request.InvitationToken))
         {
             throw new ForbiddenException("Self-registration is disabled.");
         }
@@ -113,6 +113,13 @@ public sealed class AuthService : IAuthService
         ValidatePassword(request.Password);
 
         var email = request.Email.Trim().ToLowerInvariant();
+        if (!string.IsNullOrWhiteSpace(request.InvitationToken))
+        {
+            if (request.InvitationToken.Length > 128) throw new ValidationException("Invalid invitation link.");
+            var invited = await _identityWriter.AcceptInvitationAsync(HashToken(request.InvitationToken), email,
+                request.Name.Trim(), _passwordHasher.Hash(request.Password), cancellationToken);
+            return await CreateSessionAsync(invited, ipAddress, userAgent, cancellationToken);
+        }
         if (await _users.EmailExistsAsync(email, cancellationToken))
         {
             throw new ConflictException("An account with that email already exists.");
@@ -129,7 +136,7 @@ public sealed class AuthService : IAuthService
         {
             UserId = user.Id,
             Role = "Users",
-            Status = "invited"
+            Status = "active"
         };
         var credential = new Account
         {
@@ -222,6 +229,13 @@ public sealed class AuthService : IAuthService
         string? userAgent,
         CancellationToken cancellationToken)
     {
+        var membership = await _members.GetByUserIdAsync(user.Id, cancellationToken);
+        if (membership?.Status == "inactive")
+        {
+            _logger.LogWarning("Sign-in blocked for deactivated account {Email}", user.Email);
+            throw new ForbiddenException("This account has been deactivated. Contact an administrator.");
+        }
+
         var now = DateTimeOffset.UtcNow;
         var days = _options.SessionDays > 0 ? _options.SessionDays : 7;
         var expiresAt = now.AddDays(days);
@@ -256,7 +270,7 @@ public sealed class AuthService : IAuthService
             scope);
     }
 
-    private static void ValidatePassword(string password)
+    public static void ValidatePassword(string password)
     {
         if (string.IsNullOrEmpty(password) ||
             password.Length < 8 || password.Length > 4000 ||

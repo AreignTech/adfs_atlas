@@ -48,6 +48,7 @@ export type InviteValues = z.infer<typeof inviteSchema>
 export function InviteMemberDialog() {
   const { actions } = useFlowBoard()
   const [open, setOpen] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const [values, setValues] = useState<InviteValues>({
     name: "",
     email: "",
@@ -87,6 +88,7 @@ export function InviteMemberDialog() {
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
+    if (submitting) return
 
     const result = inviteSchema.safeParse(values)
 
@@ -99,13 +101,14 @@ export function InviteMemberDialog() {
       return
     }
 
+    setSubmitting(true)
     try {
       await actions.inviteMember(result.data)
 
       toast.add({
         type: "success",
-        title: "Invitation sent",
-        description: `${result.data.name} will receive an email shortly.`,
+        title: "Teammate invited",
+        description: `Use ${result.data.name}'s team menu to create an invitation link and share it with them.`,
       })
 
       setValues({
@@ -125,11 +128,11 @@ export function InviteMemberDialog() {
         description:
           error instanceof Error ? error.message : "Please try again.",
       })
-    }
+    } finally { setSubmitting(false) }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(value) => !submitting && setOpen(value)}>
       <DialogTrigger render={<Button className="cursor-pointer" />}>
         <UserPlus data-icon="inline-start" />
         Invite teammate
@@ -138,8 +141,8 @@ export function InviteMemberDialog() {
         <DialogHeader>
           <DialogTitle>Invite a teammate</DialogTitle>
           <DialogDescription>
-            They will get access to the shared boards and can be assigned work
-            straight away.
+            Create a pending teammate, then use their team menu to create a secure
+            invitation link. Share the link directly; email is not sent automatically.
           </DialogDescription>
         </DialogHeader>
 
@@ -263,8 +266,8 @@ export function InviteMemberDialog() {
           </FieldGroup>
 
           <DialogFooter>
-            <Button type="submit" className="cursor-pointer">
-              Send invite
+            <Button type="submit" className="cursor-pointer" disabled={submitting}>
+              {submitting ? "Creating invitation..." : "Create invitation"}
             </Button>
           </DialogFooter>
         </form>

@@ -134,13 +134,18 @@ public sealed class SessionRepository : ISessionRepository
     public async Task CreateAsync(Session session, CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.OpenAsync(cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
         await connection.ExecuteAsync(new CommandDefinition(
             """
             INSERT INTO dbo.session (id, expires_at, token, created_at, updated_at, ip_address, user_agent, user_id)
             VALUES (@Id, @ExpiresAt, @Token,
                     COALESCE(@CreatedAt, SYSUTCDATETIME()),
                     COALESCE(@UpdatedAt, SYSUTCDATETIME()),
-                    @IpAddress, @UserAgent, @UserId)
+                    @IpAddress, @UserAgent, @UserId);
+            UPDATE dbo.member SET last_active_at=SYSUTCDATETIME(),
+                status=CASE WHEN status='invited' THEN 'active' ELSE status END
+            WHERE user_id=@UserId;
+            DELETE FROM dbo.member_invitation WHERE user_id=@UserId;
             """,
             new
             {
@@ -153,7 +158,8 @@ public sealed class SessionRepository : ISessionRepository
                 session.UserAgent,
                 session.UserId
             },
-            cancellationToken: cancellationToken));
+            transaction: transaction, cancellationToken: cancellationToken));
+        await transaction.CommitAsync(cancellationToken);
     }
 
     public async Task<Session?> GetByTokenAsync(string token, CancellationToken cancellationToken = default)

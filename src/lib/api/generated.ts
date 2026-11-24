@@ -4,112 +4,17 @@
  */
 
 export interface paths {
-    "/health": {
+    "/admin/labs": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/health/db": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/health/migrations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/admin/labs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
+        /**
+         * Labs
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         get: {
             parameters: {
                 query?: {
@@ -126,11 +31,159 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["LabCode"][];
+                        "application/json": components["schemas"]["LabCode"][];
+                        "text/json": components["schemas"]["LabCode"][];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
         put?: never;
+        /**
+         * CreateLab
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -151,7 +204,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["LabCode"];
+                        "application/json": components["schemas"]["LabCode"];
+                        "text/json": components["schemas"]["LabCode"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -161,13 +358,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/sections": {
+    "/admin/sections": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /**
+         * Sections
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         get: {
             parameters: {
                 query?: {
@@ -184,11 +385,159 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SectionCode"][];
+                        "application/json": components["schemas"]["SectionCode"][];
+                        "text/json": components["schemas"]["SectionCode"][];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
         put?: never;
+        /**
+         * CreateSection
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -209,7 +558,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SectionCode"];
+                        "application/json": components["schemas"]["SectionCode"];
+                        "text/json": components["schemas"]["SectionCode"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -219,7 +712,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/labs/{id}": {
+    "/admin/labs/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -227,6 +720,10 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        /**
+         * UpdateLab
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         put: {
             parameters: {
                 query?: never;
@@ -249,11 +746,159 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["LabCode"];
+                        "application/json": components["schemas"]["LabCode"];
+                        "text/json": components["schemas"]["LabCode"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
         post?: never;
+        /**
+         * DeleteLab
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         delete: {
             parameters: {
                 query?: never;
@@ -270,7 +915,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SuccessDocumentation"];
+                        "application/json": components["schemas"]["SuccessDocumentation"];
+                        "text/json": components["schemas"]["SuccessDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -279,7 +1068,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/sections/{id}": {
+    "/admin/sections/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -287,6 +1076,10 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        /**
+         * UpdateSection
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         put: {
             parameters: {
                 query?: never;
@@ -309,11 +1102,159 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SectionCode"];
+                        "application/json": components["schemas"]["SectionCode"];
+                        "text/json": components["schemas"]["SectionCode"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
         post?: never;
+        /**
+         * DeleteSection
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         delete: {
             parameters: {
                 query?: never;
@@ -330,7 +1271,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SuccessDocumentation"];
+                        "application/json": components["schemas"]["SuccessDocumentation"];
+                        "text/json": components["schemas"]["SuccessDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -339,13 +1424,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/org-audit": {
+    "/admin/org-audit": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /**
+         * OrgAudit
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         get: {
             parameters: {
                 query?: {
@@ -362,7 +1451,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["OrgAudit"][];
+                        "application/json": components["schemas"]["OrgAudit"][];
+                        "text/json": components["schemas"]["OrgAudit"][];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -374,7 +1607,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/users/{id}/organization": {
+    "/admin/users/{id}/organization": {
         parameters: {
             query?: never;
             header?: never;
@@ -383,6 +1616,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * AssignOrg
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -405,7 +1642,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SuccessDocumentation"];
+                        "application/json": components["schemas"]["SuccessDocumentation"];
+                        "text/json": components["schemas"]["SuccessDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -415,13 +1796,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/permissions": {
+    "/admin/permissions": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /**
+         * Permissions
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -436,7 +1821,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["AppPermission"][];
+                        "application/json": components["schemas"]["AppPermission"][];
+                        "text/json": components["schemas"]["AppPermission"][];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -448,13 +1977,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/rbac-audit": {
+    "/admin/rbac-audit": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /**
+         * RbacAudit
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -469,7 +2002,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["RbacAudit"][];
+                        "application/json": components["schemas"]["RbacAudit"][];
+                        "text/json": components["schemas"]["RbacAudit"][];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -481,13 +2158,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/roles": {
+    "/admin/roles": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /**
+         * Roles
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -502,11 +2183,159 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["RoleDto"][];
+                        "application/json": components["schemas"]["RoleDto"][];
+                        "text/json": components["schemas"]["RoleDto"][];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
         put?: never;
+        /**
+         * CreateRole
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -527,7 +2356,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["AppRole"];
+                        "application/json": components["schemas"]["AppRole"];
+                        "text/json": components["schemas"]["AppRole"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -537,7 +2510,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/roles/{id}": {
+    "/admin/roles/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -545,6 +2518,10 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        /**
+         * UpdateRole
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         put: {
             parameters: {
                 query?: never;
@@ -567,11 +2544,159 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["AppRole"];
+                        "application/json": components["schemas"]["AppRole"];
+                        "text/json": components["schemas"]["AppRole"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
         post?: never;
+        /**
+         * DeleteRole
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         delete: {
             parameters: {
                 query?: never;
@@ -588,7 +2713,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SuccessDocumentation"];
+                        "application/json": components["schemas"]["SuccessDocumentation"];
+                        "text/json": components["schemas"]["SuccessDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -597,7 +2866,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/members/{id}/role": {
+    "/admin/members/{id}/role": {
         parameters: {
             query?: never;
             header?: never;
@@ -606,6 +2875,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * AssignRole
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -628,7 +2901,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SuccessDocumentation"];
+                        "application/json": components["schemas"]["SuccessDocumentation"];
+                        "text/json": components["schemas"]["SuccessDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -638,7 +3055,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/members": {
+    "/admin/members": {
         parameters: {
             query?: never;
             header?: never;
@@ -647,6 +3064,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Invite
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -673,6 +3094,146 @@ export interface paths {
                         "text/json": components["schemas"]["MemberDto"];
                     };
                 };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
             };
         };
         delete?: never;
@@ -681,7 +3242,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/members/{id}/status": {
+    "/admin/members/{id}/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -690,6 +3251,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * MemberStatus
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -718,6 +3283,146 @@ export interface paths {
                         "text/json": components["schemas"]["MemberDto"];
                     };
                 };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
             };
         };
         delete?: never;
@@ -726,7 +3431,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/members/{id}": {
+    "/admin/members/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -734,8 +3439,185 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put?: never;
+        /**
+         * UpdateMember
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["MemberProfileUpdateRequest"];
+                    "text/json": components["schemas"]["MemberProfileUpdateRequest"];
+                    "application/*+json": components["schemas"]["MemberProfileUpdateRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MemberDto"];
+                        "application/json": components["schemas"]["MemberDto"];
+                        "text/json": components["schemas"]["MemberDto"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+            };
+        };
         post?: never;
+        /**
+         * DeleteMember
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         delete: {
             parameters: {
                 query?: never;
@@ -758,80 +3640,154 @@ export interface paths {
                         "text/json": string;
                     };
                 };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/auth/csrf": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
+                /** @description Invalid input or CSRF token. */
+                400: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/auth/session": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
+                /** @description Authentication required or invalid credentials. */
+                401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
-        put?: never;
-        post?: never;
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/auth/login": {
+    "/admin/members/{id}/password": {
         parameters: {
             query?: never;
             header?: never;
@@ -840,6 +3796,751 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * ResetPassword
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AdminPasswordResetRequest"];
+                    "text/json": components["schemas"]["AdminPasswordResetRequest"];
+                    "application/*+json": components["schemas"]["AdminPasswordResetRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SuccessDocumentation"];
+                        "application/json": components["schemas"]["SuccessDocumentation"];
+                        "text/json": components["schemas"]["SuccessDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/members/{id}/invitation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invitation
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["InvitationLinkDto"];
+                        "application/json": components["schemas"]["InvitationLinkDto"];
+                        "text/json": components["schemas"]["InvitationLinkDto"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/csrf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Csrf
+         * @description Anonymous access permitted. Rate limits and CSRF protection apply where configured.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CsrfDocumentation"];
+                        "application/json": components["schemas"]["CsrfDocumentation"];
+                        "text/json": components["schemas"]["CsrfDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Session
+         * @description Anonymous access permitted. Rate limits and CSRF protection apply where configured.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SessionDocumentation"];
+                        "application/json": components["schemas"]["SessionDocumentation"];
+                        "text/json": components["schemas"]["SessionDocumentation"];
+                    };
+                };
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Login
+         * @description Anonymous access permitted. Rate limits and CSRF protection apply where configured.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -849,6 +4550,12 @@ export interface paths {
             };
             requestBody: {
                 content: {
+                    /**
+                     * @example {
+                     *       "email": "person@example.com",
+                     *       "password": "ExamplePassword8"
+                     *     }
+                     */
                     "application/json": components["schemas"]["LoginRequest"];
                     "text/json": components["schemas"]["LoginRequest"];
                     "application/*+json": components["schemas"]["LoginRequest"];
@@ -860,7 +4567,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SessionDocumentation"];
+                        "application/json": components["schemas"]["SessionDocumentation"];
+                        "text/json": components["schemas"]["SessionDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -870,7 +4721,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/auth/register": {
+    "/auth/register": {
         parameters: {
             query?: never;
             header?: never;
@@ -879,6 +4730,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Register
+         * @description Anonymous access permitted. Rate limits and CSRF protection apply where configured.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -888,6 +4743,13 @@ export interface paths {
             };
             requestBody: {
                 content: {
+                    /**
+                     * @example {
+                     *       "name": "Example User",
+                     *       "email": "person@example.com",
+                     *       "password": "ExamplePassword8"
+                     *     }
+                     */
                     "application/json": components["schemas"]["RegisterRequest"];
                     "text/json": components["schemas"]["RegisterRequest"];
                     "application/*+json": components["schemas"]["RegisterRequest"];
@@ -899,7 +4761,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SessionDocumentation"];
+                        "application/json": components["schemas"]["SessionDocumentation"];
+                        "text/json": components["schemas"]["SessionDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -909,7 +4915,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/auth/logout": {
+    "/auth/logout": {
         parameters: {
             query?: never;
             header?: never;
@@ -918,6 +4924,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Logout
+         * @description Anonymous access permitted. Rate limits and CSRF protection apply where configured.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -927,12 +4937,152 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -942,7 +5092,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/auth/password": {
+    "/auth/password": {
         parameters: {
             query?: never;
             header?: never;
@@ -951,6 +5101,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Password
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -966,12 +5120,152 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -981,7 +5275,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/auth/delete-account": {
+    "/auth/delete-account": {
         parameters: {
             query?: never;
             header?: never;
@@ -990,6 +5284,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * DeleteAccount
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1005,12 +5303,152 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -1020,13 +5458,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/ldap/config": {
+    "/ldap/config": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /**
+         * Config
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -1047,9 +5489,153 @@ export interface paths {
                         "text/json": components["schemas"]["LdapAdminConfigDto"];
                     };
                 };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
             };
         };
         put?: never;
+        /**
+         * Save
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1070,7 +5656,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SuccessDocumentation"];
+                        "application/json": components["schemas"]["SuccessDocumentation"];
+                        "text/json": components["schemas"]["SuccessDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -1080,7 +5810,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/ldap/test": {
+    "/ldap/test": {
         parameters: {
             query?: never;
             header?: never;
@@ -1089,6 +5819,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Test
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1109,7 +5843,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["DirectoryTestDocumentation"];
+                        "application/json": components["schemas"]["DirectoryTestDocumentation"];
+                        "text/json": components["schemas"]["DirectoryTestDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -1119,13 +5997,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/ldap/mappings": {
+    "/ldap/mappings": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /**
+         * Mappings
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -1140,11 +6022,159 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["LdapGroupMapping"][];
+                        "application/json": components["schemas"]["LdapGroupMapping"][];
+                        "text/json": components["schemas"]["LdapGroupMapping"][];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
         put?: never;
+        /**
+         * SaveMappings
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1165,7 +6195,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SuccessDocumentation"];
+                        "application/json": components["schemas"]["SuccessDocumentation"];
+                        "text/json": components["schemas"]["SuccessDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -1175,13 +6349,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/ldap/audit": {
+    "/ldap/audit": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /**
+         * Audit
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -1196,7 +6374,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["LdapAudit"][];
+                        "application/json": components["schemas"]["LdapAudit"][];
+                        "text/json": components["schemas"]["LdapAudit"][];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -1208,13 +6530,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/auth/ldap/status": {
+    "/auth/ldap/status": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /**
+         * Status
+         * @description Anonymous access permitted. Rate limits and CSRF protection apply where configured.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -1229,7 +6555,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["DirectoryStatusDocumentation"];
+                        "application/json": components["schemas"]["DirectoryStatusDocumentation"];
+                        "text/json": components["schemas"]["DirectoryStatusDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -1241,7 +6711,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/auth/ldap": {
+    "/auth/ldap": {
         parameters: {
             query?: never;
             header?: never;
@@ -1250,6 +6720,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Login
+         * @description Anonymous access permitted. Rate limits and CSRF protection apply where configured.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1270,7 +6744,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["DirectoryLoginDocumentation"];
+                        "application/json": components["schemas"]["DirectoryLoginDocumentation"];
+                        "text/json": components["schemas"]["DirectoryLoginDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -1280,13 +6898,581 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/settings/profile": {
+    "/admin/api-management/activity": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /**
+         * Activity
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend. Administrator with admin.access required. Configuration updates additionally require admin.settings. Exports are limited to 1000 rows.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    Kind?: string;
+                    From?: string;
+                    To?: string;
+                    Query?: string;
+                    UserId?: string;
+                    Method?: string;
+                    Endpoint?: string;
+                    Status?: number | string;
+                    Result?: string;
+                    RequestId?: string;
+                    CorrelationId?: string;
+                    Page?: number | string;
+                    PageSize?: number | string;
+                    Sort?: string;
+                    Descending?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["DiagnosticPage"];
+                        "application/json": components["schemas"]["DiagnosticPage"];
+                        "text/json": components["schemas"]["DiagnosticPage"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/api-management/activity/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Detail
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend. Administrator with admin.access required. Configuration updates additionally require admin.settings. Exports are limited to 1000 rows.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["DiagnosticRecord"];
+                        "application/json": components["schemas"]["DiagnosticRecord"];
+                        "text/json": components["schemas"]["DiagnosticRecord"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/api-management/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Statistics
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend. Administrator with admin.access required. Configuration updates additionally require admin.settings. Exports are limited to 1000 rows.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    from?: string;
+                    to?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiStatistics"];
+                        "application/json": components["schemas"]["ApiStatistics"];
+                        "text/json": components["schemas"]["ApiStatistics"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/api-management/ingestion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ingestion
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend. Administrator with admin.access required. Configuration updates additionally require admin.settings. Exports are limited to 1000 rows.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -1301,11 +7487,886 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["IngestionDocumentation"];
+                        "application/json": components["schemas"]["IngestionDocumentation"];
+                        "text/json": components["schemas"]["IngestionDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/api-management/configuration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Configuration
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend. Administrator with admin.access required. Configuration updates additionally require admin.settings. Exports are limited to 1000 rows.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MonitoringSettings"];
+                        "application/json": components["schemas"]["MonitoringSettings"];
+                        "text/json": components["schemas"]["MonitoringSettings"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+            };
+        };
+        /**
+         * SaveConfiguration
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend. Administrator with admin.access required. Configuration updates additionally require admin.settings. Exports are limited to 1000 rows.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["MonitoringSettings"];
+                    "text/json": components["schemas"]["MonitoringSettings"];
+                    "application/*+json": components["schemas"]["MonitoringSettings"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MonitoringSettings"];
+                        "application/json": components["schemas"]["MonitoringSettings"];
+                        "text/json": components["schemas"]["MonitoringSettings"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/api-management/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend. Administrator with admin.access required. Configuration updates additionally require admin.settings. Exports are limited to 1000 rows.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    Kind?: string;
+                    From?: string;
+                    To?: string;
+                    Query?: string;
+                    UserId?: string;
+                    Method?: string;
+                    Endpoint?: string;
+                    Status?: number | string;
+                    Result?: string;
+                    RequestId?: string;
+                    CorrelationId?: string;
+                    Page?: number | string;
+                    PageSize?: number | string;
+                    Sort?: string;
+                    Descending?: boolean;
+                    format?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/settings/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Profile
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProfileDocumentation"];
+                        "application/json": components["schemas"]["ProfileDocumentation"];
+                        "text/json": components["schemas"]["ProfileDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * SaveProfile
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1326,7 +8387,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SuccessDocumentation"];
+                        "application/json": components["schemas"]["SuccessDocumentation"];
+                        "text/json": components["schemas"]["SuccessDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -1336,13 +8541,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/settings/{key}": {
+    "/settings/{key}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /**
+         * Get
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -1359,11 +8568,159 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["PreferencesDocumentation"];
+                        "application/json": components["schemas"]["PreferencesDocumentation"];
+                        "text/json": components["schemas"]["PreferencesDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
         put?: never;
+        /**
+         * Save
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1386,7 +8743,151 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SuccessDocumentation"];
+                        "application/json": components["schemas"]["SuccessDocumentation"];
+                        "text/json": components["schemas"]["SuccessDocumentation"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -1396,13 +8897,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/workspace": {
+    "/workspace": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /**
+         * Workspace
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -1423,6 +8928,146 @@ export interface paths {
                         "text/json": components["schemas"]["WorkspaceDto"];
                     };
                 };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
             };
         };
         put?: never;
@@ -1433,13 +9078,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/projects/{id}": {
+    "/projects/{id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /**
+         * Project
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -1462,8 +9111,152 @@ export interface paths {
                         "text/json": components["schemas"]["ProjectDto"];
                     };
                 };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
             };
         };
+        /**
+         * UpdateProject
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         put: {
             parameters: {
                 query?: never;
@@ -1492,9 +9285,153 @@ export interface paths {
                         "text/json": components["schemas"]["ProjectDto"];
                     };
                 };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
             };
         };
         post?: never;
+        /**
+         * DeleteProject
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         delete: {
             parameters: {
                 query?: never;
@@ -1517,10 +9454,154 @@ export interface paths {
                         "text/json": string;
                     };
                 };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
             };
         };
         options?: never;
         head?: never;
+        /**
+         * PatchProject
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -1549,17 +9630,161 @@ export interface paths {
                         "text/json": components["schemas"]["ProjectDto"];
                     };
                 };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
             };
         };
         trace?: never;
     };
-    "/api/projects": {
+    "/projects": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /**
+         * Projects
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         get: {
             parameters: {
                 query?: {
@@ -1581,11 +9806,159 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["PageResultOfProject"];
+                        "application/json": components["schemas"]["PageResultOfProject"];
+                        "text/json": components["schemas"]["PageResultOfProject"];
+                    };
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
         put?: never;
+        /**
+         * CreateProject
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1612,6 +9985,146 @@ export interface paths {
                         "text/json": components["schemas"]["ProjectDto"];
                     };
                 };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
             };
         };
         delete?: never;
@@ -1620,7 +10133,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/projects/{id}/status": {
+    "/projects/{id}/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -1629,6 +10142,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * ProjectStatus
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1657,6 +10174,146 @@ export interface paths {
                         "text/json": components["schemas"]["ProjectDto"];
                     };
                 };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
             };
         };
         delete?: never;
@@ -1665,7 +10322,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/tasks": {
+    "/tasks": {
         parameters: {
             query?: never;
             header?: never;
@@ -1674,6 +10331,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * CreateTask
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1700,6 +10361,146 @@ export interface paths {
                         "text/json": components["schemas"]["TaskDto"];
                     };
                 };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
             };
         };
         delete?: never;
@@ -1708,7 +10509,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/tasks/{id}": {
+    "/tasks/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -1718,6 +10519,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /**
+         * DeleteTask
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         delete: {
             parameters: {
                 query?: never;
@@ -1740,10 +10545,154 @@ export interface paths {
                         "text/json": string;
                     };
                 };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
             };
         };
         options?: never;
         head?: never;
+        /**
+         * UpdateTask
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -1772,11 +10721,151 @@ export interface paths {
                         "text/json": components["schemas"]["TaskDto"];
                     };
                 };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
             };
         };
         trace?: never;
     };
-    "/api/tasks/reorder": {
+    "/tasks/reorder": {
         parameters: {
             query?: never;
             header?: never;
@@ -1785,6 +10874,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Reorder
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1800,12 +10893,152 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
                 };
             };
         };
@@ -1815,7 +11048,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/tasks/{id}/duplicate": {
+    "/tasks/{id}/duplicate": {
         parameters: {
             query?: never;
             header?: never;
@@ -1824,6 +11057,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Duplicate
+         * @description Requires an ATLAS session. Action-specific permissions and organizational scope are checked by the backend.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1846,6 +11083,146 @@ export interface paths {
                         "text/json": components["schemas"]["TaskDto"];
                     };
                 };
+                /** @description Invalid input or CSRF token. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 400,
+                         *       "title": "Request failed.",
+                         *       "detail": "Invalid input or CSRF token."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Authentication required or invalid credentials. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 401,
+                         *       "title": "Request failed.",
+                         *       "detail": "Authentication required or invalid credentials."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Insufficient permissions or scope. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 403,
+                         *       "title": "Request failed.",
+                         *       "detail": "Insufficient permissions or scope."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Resource not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 404,
+                         *       "title": "Request failed.",
+                         *       "detail": "Resource not found."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Conflicting record or relationship. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 409,
+                         *       "title": "Request failed.",
+                         *       "detail": "Conflicting record or relationship."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 429,
+                         *       "title": "Request failed.",
+                         *       "detail": "Rate limit exceeded."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
+                /** @description Server error; no sensitive details are returned. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "status": 500,
+                         *       "title": "Request failed.",
+                         *       "detail": "Server error; no sensitive details are returned."
+                         *     }
+                         */
+                        "application/problem+json": {
+                            status?: number;
+                            title?: string;
+                            detail?: string;
+                        };
+                    };
+                };
             };
         };
         delete?: never;
@@ -1858,6 +11235,37 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AdminPasswordResetRequest: {
+            newPassword?: string;
+        };
+        ApiStatistics: {
+            summary: components["schemas"]["HealthSummary"];
+            timeline: components["schemas"]["MetricBucket"][];
+            endpoints: components["schemas"]["MetricBucket"][];
+            slowestEndpoints: components["schemas"]["MetricBucket"][];
+            statusCodes: components["schemas"]["MetricBucket"][];
+            methods: components["schemas"]["MetricBucket"][];
+        };
+        AppPermission: {
+            /** Format: uuid */
+            id?: string;
+            permissionKey?: string;
+            description?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        AppRole: {
+            /** Format: uuid */
+            id?: string;
+            name?: string;
+            description?: string;
+            isSystemRole?: boolean;
+            isActive?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
         AssignOrgRequest: {
             /** Format: uuid */
             labId?: string;
@@ -1872,8 +11280,91 @@ export interface components {
             currentPassword?: string;
             newPassword?: string;
         };
+        CsrfDocumentation: {
+            token: string;
+        };
         DeleteAccountRequest: {
             currentPassword?: string;
+        };
+        DiagnosticPage: {
+            records: components["schemas"]["DiagnosticRecord"][];
+            /** Format: int64 */
+            total: number | string;
+            /** Format: int32 */
+            page: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+        };
+        DiagnosticRecord: {
+            /** Format: uuid */
+            id?: string;
+            kind?: string;
+            /** Format: date-time */
+            timestamp?: string;
+            /** Format: uuid */
+            requestId?: null | string;
+            /** Format: uuid */
+            correlationId?: null | string;
+            traceId?: null | string;
+            userId?: null | string;
+            method?: null | string;
+            endpoint?: null | string;
+            /** Format: int32 */
+            status?: number | string;
+            /** Format: double */
+            durationMs?: number | string;
+            isSlow?: boolean;
+            component?: null | string;
+            severity?: null | string;
+            payload?: string;
+        };
+        DirectoryLoginDocumentation: {
+            success: boolean;
+            redirectTo: string;
+        };
+        DirectoryStatusDocumentation: {
+            enabled: boolean;
+        };
+        DirectoryTestDocumentation: {
+            success: boolean;
+            message: string;
+        };
+        HealthSummary: {
+            /** Format: int64 */
+            total: number | string;
+            /** Format: int64 */
+            successful: number | string;
+            /** Format: int64 */
+            failed: number | string;
+            /** Format: double */
+            successPercentage: number | string;
+            /** Format: double */
+            averageMs: number | string;
+            /** Format: double */
+            p95Ms: number | string;
+            /** Format: int64 */
+            authenticationFailures: number | string;
+            /** Format: int64 */
+            rateLimited: number | string;
+            /** Format: int64 */
+            slow: number | string;
+        };
+        IngestionDocumentation: {
+            /** Format: int32 */
+            queued: number | string;
+            /** Format: int64 */
+            dropped: number | string;
+            /** Format: int64 */
+            written: number | string;
+            /** Format: int64 */
+            failures: number | string;
+            /** Format: date-time */
+            lastWrite: null | string;
+            /** Format: date-time */
+            lastFailure: null | string;
+        };
+        InvitationLinkDto: {
+            token: string;
         };
         InviteInput: {
             name?: string;
@@ -1887,6 +11378,19 @@ export interface components {
             sectionId?: string;
         };
         JsonElement: unknown;
+        LabCode: {
+            /** Format: uuid */
+            id?: string;
+            code?: string;
+            name?: string;
+            description?: string;
+            isActive?: boolean;
+            createdBy?: null | string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
         LdapAdminConfigDto: {
             enabled?: boolean;
             host?: string;
@@ -1918,6 +11422,17 @@ export interface components {
             /** Format: date-time */
             lastConfigUpdateAt?: null | string;
         };
+        LdapAudit: {
+            /** Format: uuid */
+            id?: string;
+            eventType?: string;
+            username?: null | string;
+            administrator?: null | string;
+            success?: boolean;
+            diagnostic?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
         LdapConfigInput: {
             enabled?: boolean;
             host?: string;
@@ -1941,6 +11456,15 @@ export interface components {
             autoProvision?: boolean;
             requireApproval?: boolean;
         };
+        LdapGroupMapping: {
+            /** Format: uuid */
+            id?: string;
+            ldapGroup?: string;
+            atlasRole?: string;
+            enabled?: boolean;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
         LdapLoginRequest: {
             username?: string;
             password?: string;
@@ -1954,8 +11478,8 @@ export interface components {
             username?: null | string;
         };
         LoginRequest: {
-            email?: string;
-            password?: string;
+            email: string;
+            password: string;
         };
         MemberDto: {
             id?: string;
@@ -1976,11 +11500,110 @@ export interface components {
             sectionCode?: null | string;
             sectionName?: null | string;
         };
+        MemberProfileUpdateRequest: {
+            name?: string;
+            email?: string;
+        };
+        MetricBucket: {
+            label: string;
+            /** Format: int64 */
+            total: number | string;
+            /** Format: int64 */
+            failed: number | string;
+            /** Format: double */
+            averageMs: number | string;
+            /** Format: double */
+            p95Ms: number | string;
+        };
+        MonitoringSettings: {
+            enabled?: boolean;
+            detailedErrors?: boolean;
+            logSuccessfulRequests?: boolean;
+            /** Format: int32 */
+            slowThresholdMs?: number | string;
+            /** Format: int32 */
+            retentionDays?: number | string;
+            captureRequestBody?: boolean;
+            captureResponseBody?: boolean;
+            /** Format: int32 */
+            maxRequestBodyBytes?: number | string;
+            /** Format: int32 */
+            maxResponseBodyBytes?: number | string;
+            sensitiveFields?: string[];
+            excludedPrefixes?: string[];
+            tracingEnabled?: boolean;
+            /** Format: double */
+            traceSampleRatio?: number | string;
+        };
+        OrgAudit: {
+            /** Format: uuid */
+            id?: string;
+            actorEmail?: null | string;
+            action?: string;
+            affectedUserId?: null | string;
+            /** Format: uuid */
+            affectedLabId?: null | string;
+            /** Format: uuid */
+            affectedSectionId?: null | string;
+            previousValue?: null | string;
+            newValue?: null | string;
+            success?: boolean;
+            diagnostic?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
         OrgCodeInput: {
             code?: string;
             name?: string;
             description?: null | string;
             isActive?: boolean;
+        };
+        OrgScopeDto: {
+            /** Format: uuid */
+            labId: null | string;
+            /** Format: uuid */
+            sectionId: null | string;
+            isAssigned: boolean;
+            isAdministrator: boolean;
+        };
+        PageResultOfProject: {
+            items: components["schemas"]["Project"][];
+            /** Format: int32 */
+            total: number | string;
+            /** Format: int32 */
+            page: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+        };
+        PreferencesDocumentation: {
+            value: null | components["schemas"]["JsonElement"];
+        };
+        ProfileDocumentation: {
+            user: null | components["schemas"]["User"];
+            profile: null | components["schemas"]["JsonElement"];
+        };
+        Project: {
+            /** Format: uuid */
+            id?: string;
+            name?: string;
+            key?: string;
+            description?: string;
+            status?: string;
+            color?: string;
+            /** Format: uuid */
+            ownerId?: string;
+            /** Format: date-time */
+            startDate?: string;
+            /** Format: date-time */
+            dueDate?: string;
+            /** Format: uuid */
+            labId?: null | string;
+            /** Format: uuid */
+            sectionId?: null | string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
         };
         ProjectDto: {
             id?: string;
@@ -2011,18 +11634,83 @@ export interface components {
             /** Format: uuid */
             sectionId?: null | string;
         };
+        RbacAudit: {
+            /** Format: uuid */
+            id?: string;
+            actorUserId?: null | string;
+            actorEmail?: null | string;
+            action?: string;
+            affectedUserId?: null | string;
+            /** Format: uuid */
+            affectedRoleId?: null | string;
+            previousValue?: null | string;
+            newValue?: null | string;
+            success?: boolean;
+            diagnostic?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
         RegisterRequest: {
+            invitationToken?: null | string;
+            name: string;
+            email: string;
+            password: string;
+        };
+        RoleDto: {
+            /** Format: uuid */
+            id?: string;
             name?: string;
-            email?: string;
-            password?: string;
+            description?: string;
+            isSystemRole?: boolean;
+            isActive?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** Format: int32 */
+            assignedUsers?: number | string;
+            assignedUserNames?: string[];
+            permissionKeys?: string[];
         };
         RoleInput: {
             name?: string;
             description?: string;
             permissionKeys?: string[];
         };
+        SectionCode: {
+            /** Format: uuid */
+            id?: string;
+            code?: string;
+            name?: string;
+            description?: string;
+            isActive?: boolean;
+            createdBy?: null | string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        SessionContextDto: {
+            user: components["schemas"]["UserDto"];
+            roleNames: string[];
+            permissions: string[];
+            isAdministrator: boolean;
+            scope: components["schemas"]["OrgScopeDto"];
+        };
+        SessionDocumentation: {
+            user: components["schemas"]["UserDto"];
+            session: components["schemas"]["SessionExpiryDocumentation"];
+            context: components["schemas"]["SessionContextDto"];
+        };
+        SessionExpiryDocumentation: {
+            /** Format: date-time */
+            expiresAt: string;
+        };
         StatusUpdateRequest: {
             status?: string;
+        };
+        SuccessDocumentation: {
+            success: boolean;
         };
         TaskDto: {
             id?: string;
@@ -2060,6 +11748,24 @@ export interface components {
             status?: string;
             /** Format: int32 */
             position?: number | string;
+        };
+        User: {
+            id?: string;
+            name?: string;
+            email?: string;
+            emailVerified?: boolean;
+            image?: null | string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        UserDto: {
+            id: string;
+            name: string;
+            email: string;
+            emailVerified: boolean;
+            image: null | string;
         };
         WorkspaceDto: {
             projects?: components["schemas"]["ProjectDto"][];

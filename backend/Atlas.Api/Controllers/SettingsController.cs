@@ -36,7 +36,6 @@ public sealed class SettingsController(ISettingsRepository settings, IUserReposi
     public async Task<object> Save(string key, JsonElement input, CancellationToken ct)
     {
         ValidateKey(key); if (input.ValueKind != JsonValueKind.Object || input.GetRawText().Length > 50000) throw new ValidationException("Invalid settings payload.");
-        if (key == "connections" && input.EnumerateObject().Any(p => !new[] { "googleCalendar", "slack", "github", "zapier" }.Contains(p.Name) || p.Value.ValueKind is not (JsonValueKind.True or JsonValueKind.False))) throw new ValidationException("Invalid integration preference.");
         if (key == "notifications")
         {
             if (!input.TryGetProperty("digestFrequency", out var digest) || digest.ValueKind != JsonValueKind.String || !new[] { "instant", "daily", "weekly" }.Contains(digest.GetString())) throw new ValidationException("Invalid digest frequency.");
@@ -47,5 +46,5 @@ public sealed class SettingsController(ISettingsRepository settings, IUserReposi
         }
         await settings.SaveAsync(UserId, key, input, ct); return new { success = true };
     }
-    private static void ValidateKey(string key) { if (key is not ("notifications" or "connections")) throw new NotFoundException("Settings were not found."); }
+    private static void ValidateKey(string key) { if (key != "notifications") throw new NotFoundException("Settings were not found."); }
 }

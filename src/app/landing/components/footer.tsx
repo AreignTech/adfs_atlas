@@ -29,7 +29,6 @@ const footerLinks = {
   account: [
     { name: "Team", href: "/users" },
     { name: "Profile", href: "/settings/user" },
-    { name: "Integrations", href: "/settings/connections" },
     { name: "Notifications", href: "/settings/notifications" },
   ],
 }
@@ -155,7 +154,7 @@ export function LandingFooter() {
           </div>
         <div className="flex items-center gap-4 text-sm text-muted-foreground mt-4 md:mt-0">
             <a
-              href="/settings/connections"
+              href="/settings/account"
               className="hover:text-foreground transition-colors"
             >
               Security

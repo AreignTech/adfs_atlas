@@ -6,6 +6,7 @@ using Atlas.Application.Interfaces.Repositories;
 using Atlas.Application.Services;
 using Atlas.Domain.Entities;
 using Atlas.Infrastructure.Security;
+using Atlas.Infrastructure.Data.Migrations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -40,6 +41,7 @@ public sealed class AuthTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         using var scope = _factory.Services.CreateScope();
+        await scope.ServiceProvider.GetRequiredService<DatabaseMigrator>().MigrateAsync();
         var connection = await scope.ServiceProvider.GetRequiredService<IDbConnectionFactory>().OpenAsync();
         await using (connection)
             if (!connection.Database.Contains("Verification")) throw new InvalidOperationException("Tests require an isolated Verification database.");
@@ -115,6 +117,8 @@ public sealed class AuthTests : IAsyncLifetime
         var saved = await client.GetFromJsonAsync<JsonElement>("/api/settings/notifications"); Assert.Equal("daily", saved.GetProperty("value").GetProperty("digestFrequency").GetString());
         (await PostAsync(client, "/api/settings/profile", new { firstName = "Updated", lastName = "User", email = Email, profileImage = (string?)null })).EnsureSuccessStatusCode();
         var profile = await client.GetFromJsonAsync<JsonElement>("/api/settings/profile"); Assert.Equal("Updated User", profile.GetProperty("user").GetProperty("name").GetString());
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/api/settings/connections")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await PostAsync(client, "/api/settings/connections", new { github = true })).StatusCode);
         using var scope = _factory.Services.CreateScope(); Assert.NotNull(await scope.ServiceProvider.GetRequiredService<ISettingsRepository>().GetAsync(_userId, "notifications", default)); Assert.Null(await scope.ServiceProvider.GetRequiredService<ISettingsRepository>().GetAsync("other-user", "notifications", default));
         Assert.Equal(HttpStatusCode.Unauthorized, (await _factory.CreateClient().GetAsync("/api/settings/profile")).StatusCode);
     }
@@ -167,6 +171,10 @@ public sealed class AuthTests : IAsyncLifetime
             (await PostAsync(client, "/api/auth/logout", new { })).EnsureSuccessStatusCode();
             (await PostAsync(client, "/api/auth/login", new { email, password })).EnsureSuccessStatusCode();
             Assert.Contains(email, await client.GetStringAsync("/api/auth/session"));
+            var member = await scope.ServiceProvider.GetRequiredService<IMemberRepository>().GetByUserIdAsync(createdId!);
+            Assert.NotNull(member);
+            Assert.Equal("active", member.Status);
+            Assert.NotNull(member.LastActiveAt);
         }
         finally
         {

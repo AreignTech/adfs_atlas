@@ -20,7 +20,10 @@ import {
 import {
   inviteMemberAction,
   removeMemberAction,
+  resetMemberPasswordAction,
   setMemberStatusAction,
+  updateMemberAction,
+  type MemberProfileUpdate,
 } from "@/lib/api/members"
 import { assignRbacRole } from "@/lib/api/rbac"
 import type { WorkspaceData } from "@/lib/api/workspace"
@@ -101,6 +104,8 @@ export interface FlowBoardActions {
 
   inviteMember: (member: InviteInput) => Promise<void>
   setMemberStatus: (memberId: string, status: Member["status"]) => Promise<void>
+  updateMember: (memberId: string, input: MemberProfileUpdate) => Promise<void>
+  resetMemberPassword: (memberId: string, newPassword: string) => Promise<void>
   removeMember: (memberId: string) => Promise<void>
   assignMemberRole: (memberId: string, roleId: string) => Promise<void>
 }
@@ -336,6 +341,25 @@ export function FlowBoardProvider({
           throw new Error(errorMessage(error, "Could not update the member."))
         } finally {
           router.refresh()
+        }
+      },
+
+      async updateMember(memberId, input) {
+        try {
+          const updated = await updateMemberAction(memberId, input)
+          setMembers((prev) => prev.map((m) => (m.id === memberId ? updated : m)))
+        } catch (error) {
+          throw new Error(errorMessage(error, "Could not update the member."))
+        } finally {
+          router.refresh()
+        }
+      },
+
+      async resetMemberPassword(memberId, newPassword) {
+        try {
+          await resetMemberPasswordAction(memberId, newPassword)
+        } catch (error) {
+          throw new Error(errorMessage(error, "Could not reset the password."))
         }
       },
 

@@ -33,7 +33,7 @@ export const taskStatusSchema = z.enum([
 
 export const taskPrioritySchema = z.enum(["low", "medium", "high", "urgent"])
 
-export const memberStatusSchema = z.enum(["Active", "Invited", "Away"])
+export const memberStatusSchema = z.enum(["Active", "Invited", "Away", "Inactive"])
 
 export const memberSchema = z.object({
   id: z.string(),

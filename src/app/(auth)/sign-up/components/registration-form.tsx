@@ -51,6 +51,7 @@ export function RegistrationForm() {
         name: `${values.firstName} ${values.lastName}`,
         email: values.email,
         password: values.password,
+        invitationToken: new URLSearchParams(window.location.hash.slice(1)).get("invitation") ?? undefined,
       })
       setSuccess(true)
     } catch (error) {

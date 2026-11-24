@@ -51,3 +51,21 @@ test("registration handles duplicate email and submits the existing API contract
   await expect(page.getByRole("status")).toHaveText("Registration successful. You are signed in.")
   expect(calls).toBe(2)
 })
+
+test("invitation registration sends the private fragment token to the API", async ({ page }) => {
+  await page.route("**/api/atlas/auth/csrf", route => route.fulfill({ json: { token: "test-csrf" } }))
+  await page.route("**/api/atlas/auth/register", async route => {
+    expect(route.request().postDataJSON()).toEqual({
+      name: "Invited User", email: "invited@example.com", password: "Password123!", invitationToken: "private-invitation-token",
+    })
+    await route.fulfill({ json: { user: {} } })
+  })
+  await page.goto("/sign-up#invitation=private-invitation-token")
+  await page.getByLabel("First Name").fill("Invited")
+  await page.getByLabel("Last Name").fill("User")
+  await page.getByLabel("Email Address").fill("invited@example.com")
+  await page.getByLabel("Password *", { exact: true }).fill("Password123!")
+  await page.getByLabel("Confirm Password").fill("Password123!")
+  await page.getByRole("button", { name: "Create Account", exact: true }).click()
+  await expect(page.getByRole("status")).toHaveText("Registration successful. You are signed in.")
+})

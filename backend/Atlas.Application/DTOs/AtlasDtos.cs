@@ -23,6 +23,7 @@ public sealed class LoginRequest
 
 public sealed class RegisterRequest
 {
+    public string? InvitationToken { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
@@ -165,6 +166,17 @@ public sealed class StatusUpdateRequest
 public sealed class AssignRoleRequest
 {
     public Guid RoleId { get; set; }
+}
+
+public sealed class MemberProfileUpdateRequest
+{
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+}
+
+public sealed class AdminPasswordResetRequest
+{
+    public string NewPassword { get; set; } = string.Empty;
 }
 
 /* ------------------------------------------------------------------------- */

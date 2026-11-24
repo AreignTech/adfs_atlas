@@ -86,8 +86,39 @@ public sealed class AdminController(AccessGuard guard, IAdminWriter writer, ILab
     [HttpPost("members/{id:guid}/status")]
     public async Task<MemberDto> MemberStatus(Guid id, StatusUpdateRequest input, CancellationToken ct)
     {
-        await guard.PermissionAsync(Actor, "users.edit", ct); await Target(id, ct); var status = input.Status.ToLowerInvariant(); if (!new[] { "active", "invited", "away" }.Contains(status)) throw new ValidationException("Invalid member status.");
+        await guard.PermissionAsync(Actor, "users.edit", ct); await Target(id, ct); var status = input.Status.ToLowerInvariant(); if (!new[] { "active", "invited", "away", "inactive" }.Contains(status)) throw new ValidationException("Invalid member status.");
         await writer.SetMemberStatusAsync(id, status, Actor, ct); return WorkspaceService.ToDto((await members.ListWithUserAsync(ct)).Single(m => m.Id == id));
+    }
+    [HttpPut("members/{id:guid}")]
+    public async Task<MemberDto> UpdateMember(Guid id, MemberProfileUpdateRequest input, CancellationToken ct)
+    {
+        await guard.PermissionAsync(Actor, "users.edit", ct); await Target(id, ct);
+        WorkspaceService.Text(input.Name.Trim(), 2, 120, "name");
+        var email = input.Email.Trim().ToLowerInvariant();
+        if (!MailAddress.TryCreate(email, out var address) || address.Address != email || email.Length > 255) throw new ValidationException("Invalid email.");
+        await writer.UpdateMemberAsync(id, input.Name.Trim(), email, Actor, ct);
+        return WorkspaceService.ToDto((await members.ListWithUserAsync(ct)).Single(m => m.Id == id));
+    }
+    [HttpPost("members/{id:guid}/password")]
+    [ProducesResponseType<Atlas.Api.Observability.SuccessDocumentation>(200)]
+    public async Task<object> ResetPassword(Guid id, AdminPasswordResetRequest input, CancellationToken ct)
+    {
+        await guard.PermissionAsync(Actor, "users.edit", ct); await Target(id, ct);
+        AuthService.ValidatePassword(input.NewPassword);
+        await writer.ResetPasswordAsync(id, input.NewPassword, Actor, ct);
+        Response.Headers.CacheControl = "no-store";
+        return new { success = true };
+    }
+    [HttpPost("members/{id:guid}/invitation")]
+    [ProducesResponseType<InvitationLinkDto>(200)]
+    public async Task<InvitationLinkDto> Invitation(Guid id, CancellationToken ct)
+    {
+        await guard.PermissionAsync(Actor, "users.create", ct);
+        await Target(id, ct);
+        Response.Headers.CacheControl = "no-store";
+        return new InvitationLinkDto(await writer.RenewInvitationAsync(id, Actor, ct));
     }
     [HttpDelete("members/{id:guid}")] public async Task<Guid> DeleteMember(Guid id, CancellationToken ct) { await guard.PermissionAsync(Actor, "users.delete", ct); await Target(id, ct); await writer.RemoveMemberAsync(id, Actor, ct); return id; }
 }
+
+public sealed record InvitationLinkDto(string Token);

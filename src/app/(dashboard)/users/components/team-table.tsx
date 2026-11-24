@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { type FormEvent, useEffect, useMemo, useState } from "react"
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -16,9 +16,12 @@ import {
   ChevronDown,
   Download,
   EllipsisVertical,
+  KeyRound,
   Pencil,
   Search,
   Trash2,
+  UserCheck,
+  UserX,
 } from "lucide-react"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -42,7 +45,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import {
   InputGroup,
   InputGroupAddon,
@@ -70,6 +73,9 @@ import { cn } from "@/lib/utils"
 import { useFlowBoard } from "@/data/flowboard-store"
 import { type Member, type MemberStatus } from "@/data/flowboard"
 import { getRbacRoles } from "@/lib/api/rbac"
+import { createInvitationLink } from "@/lib/api/members"
+import { adminPasswordResetSchema, memberProfileUpdateSchema } from "@/lib/api/contracts"
+import { Input } from "@/components/ui/input"
 import {
   assignUserOrg,
   getLabCodes,
@@ -80,9 +86,10 @@ const statusClasses: Record<MemberStatus, string> = {
   Active: "border-success/40 text-success bg-success/5",
   Invited: "border-warning/40 text-warning bg-warning/5",
   Away: "border-border text-muted-foreground bg-muted/50",
+  Inactive: "border-destructive/40 text-destructive bg-destructive/5",
 }
 
-const memberStatuses: MemberStatus[] = ["Active", "Invited", "Away"]
+const memberStatuses: MemberStatus[] = ["Active", "Invited", "Away", "Inactive"]
 
 const roleColors: Record<string, string> = {
   "Product Lead": "text-destructive bg-destructive/10",
@@ -92,7 +99,7 @@ const roleColors: Record<string, string> = {
 }
 
 export function TeamTable() {
-  const { members, projects, workloadFor, actions, isAdministrator } =
+  const { members, projects, workloadFor, actions, isAdministrator, currentMember } =
     useFlowBoard()
 
   const [sorting, setSorting] = useState<SortingState>([])
@@ -102,6 +109,18 @@ export function TeamTable() {
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState("")
   const [removeMember, setRemoveMember] = useState<Member | null>(null)
+  const [invitationLink, setInvitationLink] = useState("")
+  const [deleting, setDeleting] = useState(false)
+  const [busyMember, setBusyMember] = useState<string | null>(null)
+  const [editMember, setEditMember] = useState<Member | null>(null)
+  const [resetPasswordMember, setResetPasswordMember] = useState<Member | null>(
+    null
+  )
+  const [statusChange, setStatusChange] = useState<{
+    member: Member
+    next: MemberStatus
+  } | null>(null)
+  const [statusChanging, setStatusChanging] = useState(false)
   const [rbacRoles, setRbacRoles] = useState<
     Awaited<ReturnType<typeof getRbacRoles>>
   >([])
@@ -232,6 +251,10 @@ export function TeamTable() {
             return (
               <Select
                 value={roleId}
+                items={rbacRoles.map((entry) => ({
+                  value: entry.id,
+                  label: entry.name,
+                }))}
                 onValueChange={async (value) => {
                   if (!value || value === roleId) return
                   try {
@@ -254,7 +277,7 @@ export function TeamTable() {
                 }}
               >
                 <SelectTrigger className="h-8 w-[180px]">
-                  <SelectValue placeholder={role} />
+                  <SelectValue placeholder={role}>{role}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {rbacRoles.map((entry) => (
@@ -293,6 +316,10 @@ export function TeamTable() {
           return (
             <Select
               value={orgDrafts[member.id]?.labId ?? member.labId ?? ""}
+              items={labCodes.map((lab) => ({
+                value: lab.id,
+                label: `${lab.code} - ${lab.name}`,
+              }))}
               onValueChange={async (value) => {
                 if (!value) return
                 if (!member.userId) return
@@ -326,7 +353,14 @@ export function TeamTable() {
               }}
             >
               <SelectTrigger className="h-8 w-[150px]">
-                <SelectValue placeholder="Unassigned" />
+                <SelectValue placeholder="Unassigned">
+                  {(() => {
+                    const lab = labCodes.find(
+                      (entry) => entry.id === (orgDrafts[member.id]?.labId ?? member.labId)
+                    )
+                    return lab ? `${lab.code} - ${lab.name}` : "Unassigned"
+                  })()}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {labCodes.filter((lab) => lab.isActive).map((lab) => (
@@ -362,6 +396,10 @@ export function TeamTable() {
           return (
             <Select
               value={orgDrafts[member.id]?.sectionId ?? member.sectionId ?? ""}
+              items={sectionCodes.map((section) => ({
+                value: section.id,
+                label: `${section.code} - ${section.name}`,
+              }))}
               onValueChange={async (value) => {
                 if (!value) return
                 if (!member.userId) return
@@ -395,7 +433,14 @@ export function TeamTable() {
               }}
             >
               <SelectTrigger className="h-8 w-[150px]">
-                <SelectValue placeholder="Unassigned" />
+                <SelectValue placeholder="Unassigned">
+                  {(() => {
+                    const section = sectionCodes.find(
+                      (entry) => entry.id === (orgDrafts[member.id]?.sectionId ?? member.sectionId)
+                    )
+                    return section ? `${section.code} - ${section.name}` : "Unassigned"
+                  })()}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {availableSections.map((section) => (
@@ -466,7 +511,7 @@ export function TeamTable() {
         header: "Actions",
         cell: ({ row }) => {
           const member = row.original
-          const isCurrentUser = member.id === "u-1"
+          const isCurrentUser = member.id === currentMember?.id
 
           return (
             <div className="flex items-center gap-2">
@@ -474,15 +519,21 @@ export function TeamTable() {
                 variant="ghost"
                 size="icon"
                 className="size-8 cursor-pointer"
-                onClick={() => {
+                disabled={
+                  member.status === "Invited" ||
+                  member.status === "Inactive" ||
+                  busyMember === member.id
+                }
+                onClick={async () => {
                   const nextStatus: MemberStatus =
                     member.status === "Active" ? "Away" : "Active"
-                  actions.setMemberStatus(member.id, nextStatus)
-                  toast.add({
-                    type: "info",
-                    title: `Marked as ${nextStatus.toLowerCase()}`,
-                    description: member.name,
-                  })
+                  setBusyMember(member.id)
+                  try {
+                    await actions.setMemberStatus(member.id, nextStatus)
+                    toast.add({ type: "success", title: `Marked as ${nextStatus.toLowerCase()}`, description: member.name })
+                  } catch (error) {
+                    toast.add({ type: "error", title: "Could not update member", description: error instanceof Error ? error.message : "Please try again." })
+                  } finally { setBusyMember(null) }
                 }}
               >
                 <Pencil data-icon="inline-start" />
@@ -503,23 +554,60 @@ export function TeamTable() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuGroup>
-                    <DropdownMenuItem
+                    {member.status === "Invited" && <DropdownMenuItem
                       className="cursor-pointer"
-                      onClick={() =>
-                        actions.setMemberStatus(
-                          member.id,
-                          member.status === "Invited" ? "Active" : "Invited"
-                        )
-                      }
-                    >
-                      {member.status === "Invited"
-                        ? "Accept invitation"
-                        : "Move to invited"}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer">
-                      Resend invite
-                    </DropdownMenuItem>
+                      disabled={busyMember === member.id}
+                      onClick={async () => {
+                        setBusyMember(member.id)
+                        try { setInvitationLink(await createInvitationLink(member.id)) }
+                        catch (error) { toast.add({ type: "error", title: "Could not create invitation link", description: error instanceof Error ? error.message : "Please try again." }) }
+                        finally { setBusyMember(null) }
+                      }}
+                    >Create new invitation link</DropdownMenuItem>}
                   </DropdownMenuGroup>
+                  {isAdministrator && member.status !== "Invited" && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => setEditMember(member)}
+                        >
+                          <Pencil />
+                          Edit details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => setResetPasswordMember(member)}
+                        >
+                          <KeyRound />
+                          Reset password
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          className="cursor-pointer"
+                          onClick={() =>
+                            setStatusChange({
+                              member,
+                              next:
+                                member.status === "Inactive"
+                                  ? "Active"
+                                  : "Inactive",
+                            })
+                          }
+                        >
+                          {member.status === "Inactive" ? (
+                            <UserCheck />
+                          ) : (
+                            <UserX />
+                          )}
+                          {member.status === "Inactive"
+                            ? "Activate account"
+                            : "Deactivate account"}
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem
@@ -529,7 +617,7 @@ export function TeamTable() {
                       onClick={() => setRemoveMember(member)}
                     >
                       <Trash2 />
-                      Remove from team
+                      Delete account
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </DropdownMenuContent>
@@ -539,13 +627,18 @@ export function TeamTable() {
         },
       },
     ],
-    [projects, workloadFor, maxWorkload, actions, isAdministrator, labCodes, orgDrafts, rbacRoles, sectionCodes]
+    [projects, workloadFor, maxWorkload, actions, isAdministrator, labCodes, orgDrafts, rbacRoles, sectionCodes, currentMember?.id, busyMember]
   )
 
   const table = useTable({
     features: dataTableFeatures,
     data: members,
     columns,
+    globalFilterFn: (row, _columnId, value) => {
+      const member = row.original
+      return [member.name, member.email, member.role, member.status]
+        .some((field) => field.toLowerCase().includes(String(value).trim().toLowerCase()))
+    },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
@@ -805,14 +898,16 @@ export function TeamTable() {
 
       <Dialog
         open={Boolean(removeMember)}
-        onOpenChange={(open) => !open && setRemoveMember(null)}
+        onOpenChange={(open) => !open && !deleting && setRemoveMember(null)}
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Remove {removeMember?.name}?</DialogTitle>
+            <DialogTitle>Delete {removeMember?.name}&apos;s account?</DialogTitle>
             <DialogDescription>
-              They lose access to every project in this workspace. Tasks
-              already assigned to them stay in place and become unassigned.
+              This permanently deletes their account and revokes all sessions.
+              Their tasks become unassigned. Any owned projects transfer to an
+              active teammate in the permitted organization scope. Deletion is
+              blocked if no active successor is available.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -820,30 +915,351 @@ export function TeamTable() {
               variant="outline"
               className="cursor-pointer"
               onClick={() => setRemoveMember(null)}
+              disabled={deleting}
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
               className="cursor-pointer"
-              onClick={() => {
+              disabled={deleting}
+              onClick={async () => {
                 if (removeMember) {
                   const name = removeMember.name
-                  actions.removeMember(removeMember.id)
-                  setRemoveMember(null)
-                  toast.add({
-                    type: "info",
-                    title: "Teammate removed",
-                    description: `${name} no longer has workspace access.`,
-                  })
+                  setDeleting(true)
+                  try {
+                    await actions.removeMember(removeMember.id)
+                    setRemoveMember(null)
+                    toast.add({ type: "success", title: "Account deleted", description: `${name} no longer has workspace access.` })
+                  } catch (error) {
+                    toast.add({ type: "error", title: "Could not delete account", description: error instanceof Error ? error.message : "Please try again." })
+                  } finally { setDeleting(false) }
                 }
               }}
             >
-              Remove teammate
+              {deleting ? "Deleting..." : "Delete account"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={Boolean(invitationLink)} onOpenChange={(open) => !open && setInvitationLink("")}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share invitation link</DialogTitle>
+            <DialogDescription>Share this link privately with the invited teammate. It expires in seven days, works once, and replaces any previous link. They must register with their invited email address.</DialogDescription>
+          </DialogHeader>
+          <Input aria-label="Invitation link" readOnly value={invitationLink} onFocus={(event) => event.target.select()} />
+          <DialogFooter>
+            <Button onClick={async () => {
+              try { await navigator.clipboard.writeText(invitationLink); toast.add({ type: "success", title: "Invitation link copied" }) }
+              catch { toast.add({ type: "error", title: "Copy failed", description: "Select and copy the link above." }) }
+            }}>Copy link</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {editMember && (
+        <EditMemberDialog member={editMember} onClose={() => setEditMember(null)} />
+      )}
+
+      {resetPasswordMember && (
+        <ResetPasswordDialog
+          member={resetPasswordMember}
+          onClose={() => setResetPasswordMember(null)}
+        />
+      )}
+
+      <Dialog
+        open={Boolean(statusChange)}
+        onOpenChange={(open) => !open && !statusChanging && setStatusChange(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {statusChange?.next === "Inactive"
+                ? `Deactivate ${statusChange?.member.name}'s account?`
+                : `Reactivate ${statusChange?.member.name}'s account?`}
+            </DialogTitle>
+            <DialogDescription>
+              {statusChange?.next === "Inactive"
+                ? "They will be signed out of every device immediately and cannot sign in again until an administrator reactivates the account. Their tasks and history are preserved."
+                : "They will be able to sign in again with their existing credentials."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              className="cursor-pointer"
+              disabled={statusChanging}
+              onClick={() => setStatusChange(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={statusChange?.next === "Inactive" ? "destructive" : "default"}
+              className="cursor-pointer"
+              disabled={statusChanging}
+              onClick={async () => {
+                if (!statusChange) return
+                const { member, next } = statusChange
+                setStatusChanging(true)
+                try {
+                  await actions.setMemberStatus(member.id, next)
+                  toast.add({
+                    type: "success",
+                    title:
+                      next === "Inactive"
+                        ? "Account deactivated"
+                        : "Account reactivated",
+                    description:
+                      next === "Inactive"
+                        ? `${member.name} was signed out of all devices and cannot sign in.`
+                        : `${member.name} can sign in again.`,
+                  })
+                  setStatusChange(null)
+                } catch (error) {
+                  toast.add({
+                    type: "error",
+                    title: "Could not update the account status",
+                    description:
+                      error instanceof Error ? error.message : "Please try again.",
+                  })
+                } finally {
+                  setStatusChanging(false)
+                }
+              }}
+            >
+              {statusChanging
+                ? "Saving..."
+                : statusChange?.next === "Inactive"
+                  ? "Deactivate account"
+                  : "Reactivate account"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+function splitName(name: string): [string, string] {
+  const index = name.indexOf(" ")
+  return index === -1 ? [name, ""] : [name.slice(0, index), name.slice(index + 1)]
+}
+
+function EditMemberDialog({
+  member,
+  onClose,
+}: {
+  member: Member
+  onClose: () => void
+}) {
+  const { actions } = useFlowBoard()
+  const [firstName, setFirstName] = useState(() => splitName(member.name)[0])
+  const [lastName, setLastName] = useState(() => splitName(member.name)[1])
+  const [email, setEmail] = useState(member.email)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [submitting, setSubmitting] = useState(false)
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault()
+    if (submitting) return
+    const result = memberProfileUpdateSchema.safeParse({
+      name: `${firstName} ${lastName}`.replace(/\s+/g, " ").trim(),
+      email: email.trim(),
+    })
+    if (!result.success) {
+      const nextErrors: Record<string, string> = {}
+      for (const issue of result.error.issues) {
+        const key = String(issue.path[0])
+        if (!nextErrors[key]) nextErrors[key] = issue.message
+      }
+      setErrors(nextErrors)
+      return
+    }
+    setErrors({})
+    setSubmitting(true)
+    try {
+      await actions.updateMember(member.id, result.data)
+      toast.add({
+        type: "success",
+        title: "Details updated",
+        description: `${result.data.name}'s profile was saved.`,
+      })
+      onClose()
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Please try again."
+      if (message.toLowerCase().includes("email")) {
+        setErrors({ email: message })
+      }
+      toast.add({
+        type: "error",
+        title: "Could not update details",
+        description: message,
+      })
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && !submitting && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Edit details</DialogTitle>
+          <DialogDescription>
+            Update this teammate&apos;s name or email address. The email must be
+            unique across the workspace.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="grid gap-4">
+          <FieldGroup className="grid gap-4 sm:grid-cols-2">
+            <Field>
+              <FieldLabel htmlFor="edit-first-name">First name</FieldLabel>
+              <Input
+                id="edit-first-name"
+                value={firstName}
+                autoComplete="off"
+                onChange={(event) => setFirstName(event.target.value)}
+              />
+            </Field>
+            <Field data-invalid={!!errors.name}>
+              <FieldLabel htmlFor="edit-last-name">Last name</FieldLabel>
+              <Input
+                id="edit-last-name"
+                value={lastName}
+                autoComplete="off"
+                onChange={(event) => setLastName(event.target.value)}
+              />
+              {errors.name && <FieldError errors={[{ message: errors.name }]} />}
+            </Field>
+          </FieldGroup>
+          <Field data-invalid={!!errors.email}>
+            <FieldLabel htmlFor="edit-email">Email</FieldLabel>
+            <Input
+              id="edit-email"
+              type="email"
+              value={email}
+              autoComplete="off"
+              onChange={(event) => setEmail(event.target.value)}
+            />
+            {errors.email && <FieldError errors={[{ message: errors.email }]} />}
+          </Field>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              className="cursor-pointer"
+              disabled={submitting}
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" className="cursor-pointer" disabled={submitting}>
+              {submitting ? "Saving..." : "Save changes"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function ResetPasswordDialog({
+  member,
+  onClose,
+}: {
+  member: Member
+  onClose: () => void
+}) {
+  const { actions } = useFlowBoard()
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [error, setError] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault()
+    if (submitting) return
+    const result = adminPasswordResetSchema.safeParse({ newPassword: password })
+    if (!result.success) {
+      setError(result.error.issues[0].message)
+      return
+    }
+    if (password !== confirmPassword) {
+      setError("The two passwords do not match.")
+      return
+    }
+    setError("")
+    setSubmitting(true)
+    try {
+      await actions.resetMemberPassword(member.id, password)
+      toast.add({
+        type: "success",
+        title: "Password reset",
+        description: `${member.name} must sign in with the new password and was signed out of all devices.`,
+      })
+      onClose()
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Please try again.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && !submitting && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Reset password for {member.name}</DialogTitle>
+          <DialogDescription>
+            The new password is stored as a salted hash — it is never shown
+            again. {member.name} will be signed out of every device and must
+            sign in with it. Share it with them privately.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="grid gap-4">
+          <Field data-invalid={!!error}>
+            <FieldLabel htmlFor="reset-new-password">New password</FieldLabel>
+            <Input
+              id="reset-new-password"
+              type="password"
+              value={password}
+              autoComplete="new-password"
+              placeholder="At least 8 characters, one uppercase letter, one number"
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          </Field>
+          <Field data-invalid={!!error}>
+            <FieldLabel htmlFor="reset-confirm-password">
+              Confirm password
+            </FieldLabel>
+            <Input
+              id="reset-confirm-password"
+              type="password"
+              value={confirmPassword}
+              autoComplete="new-password"
+              onChange={(event) => setConfirmPassword(event.target.value)}
+            />
+            {error && <FieldError errors={[{ message: error }]} />}
+          </Field>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              className="cursor-pointer"
+              disabled={submitting}
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" className="cursor-pointer" disabled={submitting}>
+              {submitting ? "Resetting..." : "Reset password"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }

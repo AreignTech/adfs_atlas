@@ -4,6 +4,8 @@ using System.Text.Json;
 using Atlas.Application.Interfaces;
 using Atlas.Application.Interfaces.Repositories;
 using Atlas.Domain.Entities;
+using Atlas.Infrastructure.Data.Migrations;
+using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -42,6 +44,7 @@ public sealed class AdminWorkflowTests
     public async Task RoleOrganizationInvitationAndMemberLifecycleAreTransactionalAndAudited()
     {
         await using var factory = new AtlasFactory(); using var scope = factory.Services.CreateScope(); var sp = scope.ServiceProvider;
+        await sp.GetRequiredService<DatabaseMigrator>().MigrateAsync();
         var id = Guid.NewGuid().ToString(); var email = $"{id}@admin.test";
         await sp.GetRequiredService<IIdentityWriter>().CreateAsync(new User { Id = id, Email = email, Name = "Test Administrator" }, new Member { UserId = id, Role = "Administrators", Status = "active" }, new Account { Id = Guid.NewGuid().ToString(), UserId = id, AccountId = id, ProviderId = "credential", Password = sp.GetRequiredService<IPasswordHasher>().Hash("AdminWorkflow123!") }, "Administrators");
         string? invitedId = null; Guid? labId = null, sectionId = null, roleId = null;
@@ -56,7 +59,32 @@ public sealed class AdminWorkflowTests
             var member = await Post(client, "/api/admin/members", new { name = "Invited User", email = $"{suffix}@invite.test", roleId, labId, sectionId }); invitedId = member.GetProperty("userId").GetString(); var memberId = member.GetProperty("id").GetGuid();
             Assert.NotNull(invitedId);
             Assert.Equal("Invited", member.GetProperty("status").GetString());
-            var active = await Post(client, $"/api/admin/members/{memberId}/status", new { status = "Active" }); Assert.Equal("Active", active.GetProperty("status").GetString());
+            Assert.Equal(HttpStatusCode.BadRequest, (await AuthTests.PostAsync(client, $"/api/admin/members/{memberId}/status", new { status = "Active" })).StatusCode);
+            using var invitee = factory.CreateClient();
+            var invitation = await Post(client, $"/api/admin/members/{memberId}/invitation", new { });
+            var oldToken = invitation.GetProperty("token").GetString();
+            invitation = await Post(client, $"/api/admin/members/{memberId}/invitation", new { });
+            var token = invitation.GetProperty("token").GetString();
+            object Registration(string? invitationToken, string? address = null) => new { name = "Accepted User", email = address ?? $"{suffix}@invite.test", password = "Invitation123!", invitationToken };
+            Assert.Equal(HttpStatusCode.BadRequest, (await AuthTests.PostAsync(invitee, "/api/auth/register", Registration(oldToken))).StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, (await AuthTests.PostAsync(invitee, "/api/auth/register", Registration(token, "wrong@invite.test"))).StatusCode);
+            await using (var connection = await sp.GetRequiredService<IDbConnectionFactory>().OpenAsync())
+                await connection.ExecuteAsync("UPDATE dbo.member_invitation SET expires_at=DATEADD(day,-1,SYSUTCDATETIME()) WHERE user_id=@Id", new { Id = invitedId });
+            Assert.Equal(HttpStatusCode.BadRequest, (await AuthTests.PostAsync(invitee, "/api/auth/register", Registration(token))).StatusCode);
+            invitation = await Post(client, $"/api/admin/members/{memberId}/invitation", new { });
+            token = invitation.GetProperty("token").GetString();
+            var accepted = await Post(invitee, "/api/auth/register", Registration(token));
+            Assert.Equal(invitedId, accepted.GetProperty("user").GetProperty("id").GetString());
+            var active = (await sp.GetRequiredService<IMemberRepository>().GetByIdAsync(memberId))!;
+            Assert.Equal("active", active.Status);
+            Assert.NotNull(active.LastActiveAt);
+            Assert.Equal(roleId, (await sp.GetRequiredService<IUserRoleRepository>().GetForUserAsync(invitedId!))!.RoleId);
+            var assignment = (await sp.GetRequiredService<IOrgAssignmentRepository>().GetForUserAsync(invitedId!))!;
+            Assert.Equal(labId, assignment.LabId);
+            Assert.Equal(sectionId, assignment.SectionId);
+            Assert.Equal(HttpStatusCode.BadRequest, (await AuthTests.PostAsync(invitee, "/api/auth/register", Registration(token))).StatusCode);
+            Assert.Equal(HttpStatusCode.Conflict, (await AuthTests.PostAsync(client, $"/api/admin/members/{memberId}/invitation", new { })).StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, (await AuthTests.PostAsync(client, $"/api/admin/members/{memberId}/status", new { status = "Invited" })).StatusCode);
             var usersRole = (await sp.GetRequiredService<IRoleRepository>().GetByNameAsync("Users"))!;
             await Post(client, $"/api/admin/members/{memberId}/role", new { roleId = usersRole.Id });
             await Post(client, $"/api/admin/users/{invitedId}/organization", new { labId, sectionId });

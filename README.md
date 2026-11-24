@@ -52,6 +52,15 @@ you need to change `ATLAS_API_URL`. That URL is server-only: browsers call
 same-origin `/api/atlas/*`, and Next.js proxies requests to the API.
 No browser or Node.js code connects to SQL Server.
 
+Team invitations use a private link rather than automatic email delivery. After
+creating a teammate, choose **Create new invitation link** in their Team menu
+and share it directly. Links expire after seven days; generating another link
+invalidates the previous one. The recipient registers with the invited email
+address to activate the existing account, preserving its role and organization.
+Invitation acceptance is available even when public self-registration is disabled.
+Apply database migrations before updating the API; migration 006 also corrects
+registered credential accounts that were incorrectly marked as invited.
+
 Development defaults use Windows authentication against
 `localhost\SQL2022DEV/ATLAS_V2`. Override the connection for another instance.
 Production has no default connection string: supply secure configuration.

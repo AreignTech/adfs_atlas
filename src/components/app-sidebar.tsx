@@ -84,10 +84,6 @@ const navGroups = [
               title: "Notifications",
               url: "/settings/notifications",
             },
-            {
-              title: "Integrations",
-              url: "/settings/connections",
-            },
           ],
         },
       ],

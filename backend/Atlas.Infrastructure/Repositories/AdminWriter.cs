@@ -7,8 +7,25 @@ using Dapper;
 
 namespace Atlas.Infrastructure.Repositories;
 
-public sealed class AdminWriter(IDbConnectionFactory factory) : IAdminWriter
+public sealed class AdminWriter(IDbConnectionFactory factory, IPasswordHasher hasher) : IAdminWriter
 {
+    public Task<string> RenewInvitationAsync(Guid memberId, SessionContextDto actor, CancellationToken ct) => TransactionAsync(async (c, t) =>
+    {
+        var userId = await c.QuerySingleOrDefaultAsync<string>("""
+            SELECT m.user_id FROM dbo.member m WITH(UPDLOCK,HOLDLOCK)
+            WHERE m.id=@Id AND m.status='invited'
+              AND NOT EXISTS(SELECT 1 FROM dbo.account a WHERE a.user_id=m.user_id)
+            """, new { Id = memberId }, t) ?? throw new ConflictException("Only pending users without a sign-in account can receive an invitation link.");
+        var token = Convert.ToHexStringLower(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
+        var hash = Atlas.Application.Services.AuthService.HashToken(token);
+        await c.ExecuteAsync("""
+            DELETE FROM dbo.member_invitation WHERE user_id=@UserId;
+            INSERT INTO dbo.member_invitation(user_id,token_hash,expires_at)
+            VALUES(@UserId,@Hash,DATEADD(day,7,SYSUTCDATETIME()));
+            """, new { UserId = userId, Hash = hash }, t);
+        await Audit(c, t, actor, "user.invitation_link_created", userId);
+        return token;
+    }, ct);
     private async Task<T> TransactionAsync<T>(Func<System.Data.Common.DbConnection, System.Data.Common.DbTransaction, Task<T>> action, CancellationToken ct)
     {
         await using var connection = await factory.OpenAsync(ct);
@@ -82,8 +99,28 @@ public sealed class AdminWriter(IDbConnectionFactory factory) : IAdminWriter
     public async Task SetMemberStatusAsync(Guid memberId, string status, SessionContextDto actor, CancellationToken ct) => await TransactionAsync(async (c, t) =>
     {
         var member = await c.QuerySingleOrDefaultAsync<Member>("SELECT * FROM dbo.member WITH(UPDLOCK,HOLDLOCK) WHERE id=@Id", new { Id = memberId }, t) ?? throw new NotFoundException("User was not found.");
+        if (status == "invited" && member.Status != "invited") throw new ValidationException("An onboarded user cannot be moved back to invited.");
+        if (member.Status == "invited" && status != "invited" && await c.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM dbo.account WHERE user_id=@UserId", new { member.UserId }, t) == 0)
+            throw new ValidationException("The user must accept their invitation before changing presence.");
         if (status != "active") await ProtectAdmin(c, t, member.UserId);
-        await c.ExecuteAsync("UPDATE dbo.member SET status=@Status WHERE id=@Id", new { Status = status, Id = memberId }, t); await Audit(c, t, actor, "user.status_changed", member.UserId); return true;
+        await c.ExecuteAsync("UPDATE dbo.member SET status=@Status WHERE id=@Id", new { Status = status, Id = memberId }, t);
+        if (status == "inactive") await c.ExecuteAsync("DELETE FROM dbo.session WHERE user_id=@UserId", new { member.UserId }, t);
+        await Audit(c, t, actor, "user.status_changed", member.UserId); return true;
+    }, ct);
+    public async Task UpdateMemberAsync(Guid memberId, string name, string email, SessionContextDto actor, CancellationToken ct) => await TransactionAsync(async (c, t) =>
+    {
+        var member = await c.QuerySingleOrDefaultAsync<Member>("SELECT * FROM dbo.member WITH(UPDLOCK,HOLDLOCK) WHERE id=@Id", new { Id = memberId }, t) ?? throw new NotFoundException("User was not found.");
+        if (await c.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM dbo.[user] WITH(UPDLOCK,HOLDLOCK) WHERE email=@Email AND id<>@UserId", new { Email = email, member.UserId }, t) > 0) throw new ConflictException("Another user already uses that email address.");
+        await c.ExecuteAsync("UPDATE dbo.[user] SET name=@Name,email=@Email,updated_at=SYSUTCDATETIME() WHERE id=@Id", new { Name = name, Email = email, Id = member.UserId }, t);
+        await Audit(c, t, actor, "user.updated", member.UserId); return true;
+    }, ct);
+    public async Task ResetPasswordAsync(Guid memberId, string newPassword, SessionContextDto actor, CancellationToken ct) => await TransactionAsync(async (c, t) =>
+    {
+        var member = await c.QuerySingleOrDefaultAsync<Member>("SELECT * FROM dbo.member WITH(UPDLOCK,HOLDLOCK) WHERE id=@Id", new { Id = memberId }, t) ?? throw new NotFoundException("User was not found.");
+        if (await c.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM dbo.account WHERE user_id=@UserId AND provider_id='credential' AND password IS NOT NULL", new { member.UserId }, t) == 0) throw new ValidationException("The user must accept their invitation before a password can be reset.");
+        await c.ExecuteAsync("UPDATE dbo.account SET password=@Hash,updated_at=SYSUTCDATETIME() WHERE user_id=@UserId AND provider_id='credential'", new { Hash = hasher.Hash(newPassword), member.UserId }, t);
+        await c.ExecuteAsync("DELETE FROM dbo.session WHERE user_id=@UserId", new { member.UserId }, t);
+        await Audit(c, t, actor, "user.password_reset", member.UserId); return true;
     }, ct);
     public async Task RemoveMemberAsync(Guid memberId, SessionContextDto actor, CancellationToken ct, bool allowSelf = false) => await TransactionAsync(async (c, t) =>
     {
@@ -92,7 +129,7 @@ public sealed class AdminWriter(IDbConnectionFactory factory) : IAdminWriter
         await ProtectAdmin(c, t, member.UserId);
         if (await c.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM dbo.project WHERE owner_id=@Id", new { Id = memberId }, t) > 0)
         {
-            var successor = await c.ExecuteScalarAsync<Guid?>("SELECT TOP 1 m.id FROM dbo.member m LEFT JOIN dbo.user_org_assignment a ON a.user_id=m.user_id WHERE m.id<>@Id AND (@Admin=1 OR (a.lab_id=@LabId AND a.section_id=@SectionId)) ORDER BY m.joined_at,m.id", new { Id = memberId, Admin = actor.IsAdministrator, actor.Scope.LabId, actor.Scope.SectionId }, t) ?? throw new ConflictException("No eligible successor exists for the member's projects.");
+            var successor = await c.ExecuteScalarAsync<Guid?>("SELECT TOP 1 m.id FROM dbo.member m LEFT JOIN dbo.user_org_assignment a ON a.user_id=m.user_id WHERE m.id<>@Id AND m.status='active' AND (@Admin=1 OR (a.lab_id=@LabId AND a.section_id=@SectionId)) ORDER BY m.joined_at,m.id", new { Id = memberId, Admin = actor.IsAdministrator, actor.Scope.LabId, actor.Scope.SectionId }, t) ?? throw new ConflictException("No active successor exists for the member's projects.");
             await c.ExecuteAsync("UPDATE dbo.project SET owner_id=@Successor,updated_at=SYSUTCDATETIME() WHERE owner_id=@Id", new { Id = memberId, Successor = successor }, t);
         }
         await c.ExecuteAsync("DELETE FROM dbo.[user] WHERE id=@Id", new { Id = member.UserId }, t); await Audit(c, t, actor, "user.removed", member.UserId); return true;

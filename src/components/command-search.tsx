@@ -7,7 +7,6 @@ import {
   CalendarClock,
   FolderKanban,
   LayoutDashboard,
-  Link2,
   ListTodo,
   ShieldCheck,
   User,
@@ -84,12 +83,6 @@ export function CommandSearch({ open, onOpenChange }: CommandSearchProps) {
       url: "/settings/notifications",
       group: "Settings",
       icon: Bell,
-    },
-    {
-      title: "Integrations",
-      url: "/settings/connections",
-      group: "Settings",
-      icon: Link2,
     },
   ]
 
