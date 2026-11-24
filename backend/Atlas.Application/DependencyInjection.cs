@@ -19,6 +19,7 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<Atlas.Application.Security.AccessGuard>();
         services.AddScoped<WorkspaceService>();
+        services.AddScoped<TaskCommentService>();
         services.AddScoped<LdapService>();
 
         return services;

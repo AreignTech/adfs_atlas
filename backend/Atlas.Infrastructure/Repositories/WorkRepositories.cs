@@ -23,18 +23,18 @@ public sealed class ProjectRepository : IProjectRepository
     {
         await using var connection = await _connectionFactory.OpenAsync(cancellationToken);
         var rows = await connection.QueryAsync<Project>(new CommandDefinition(
-            """
+            $"""
             SELECT p.*
             FROM dbo.project p
-            WHERE @Unscoped = 1
-               OR (p.lab_id = @LabId AND p.section_id = @SectionId)
+            WHERE {WorkspaceAccessSql.ForProject("p.id")}
             ORDER BY p.due_date
             """,
             new
             {
                 Unscoped = scope is null || scope.IsAdministrator ? 1 : 0,
                 scope?.LabId,
-                scope?.SectionId
+                scope?.SectionId,
+                scope?.UserId
             },
             cancellationToken: cancellationToken));
         return rows.AsList();
@@ -172,18 +172,19 @@ public sealed class TaskRepository : ITaskRepository
     {
         await using var connection = await _connectionFactory.OpenAsync(cancellationToken);
         var rows = await connection.QueryAsync<TaskItem>(new CommandDefinition(
-            """
-            SELECT t.*
+            $"""
+            SELECT t.*, (SELECT COUNT(*) FROM dbo.task_comment c WHERE c.task_id=t.id) AS CommentCount
             FROM dbo.task t
-            WHERE @Unscoped = 1
-               OR (t.lab_id = @LabId AND t.section_id = @SectionId)
+            INNER JOIN dbo.project p ON p.id = t.project_id
+            WHERE {WorkspaceAccessSql.ForProject("p.id")}
             ORDER BY t.project_id, t.status, t.position
             """,
             new
             {
                 Unscoped = scope is null || scope.IsAdministrator ? 1 : 0,
                 scope?.LabId,
-                scope?.SectionId
+                scope?.SectionId,
+                scope?.UserId
             },
             cancellationToken: cancellationToken));
         return rows.AsList();
@@ -193,7 +194,7 @@ public sealed class TaskRepository : ITaskRepository
     {
         await using var connection = await _connectionFactory.OpenAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<TaskItem>(new CommandDefinition(
-            "SELECT t.* FROM dbo.task t WHERE t.id = @Id",
+            "SELECT t.*, (SELECT COUNT(*) FROM dbo.task_comment c WHERE c.task_id=t.id) AS CommentCount FROM dbo.task t WHERE t.id = @Id",
             new { Id = id },
             cancellationToken: cancellationToken));
     }

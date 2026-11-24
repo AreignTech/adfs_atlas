@@ -17,31 +17,52 @@ public sealed class WorkspaceService(IProjectRepository projects, ITaskRepositor
     public static void Text(string? value, int min, int max, string field) { if (value is null || value.Length < min || value.Length > max) throw new ValidationException($"Invalid {field}."); }
     public static DateTime Date(string value) => DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) ? date : throw new ValidationException("Expected a valid YYYY-MM-DD date.");
     private static string Iso(DateTime date) => date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-    public static TaskDto ToDto(TaskItem t) => new() { Id = t.Id.ToString(), Reference = t.Reference, Title = t.Title, ProjectId = t.ProjectId.ToString(), Status = t.Status, Priority = t.Priority, AssigneeId = t.AssigneeId?.ToString() ?? "", DueDate = Iso(t.DueDate), Position = t.Position, LabId = t.LabId, SectionId = t.SectionId };
+    public static TaskDto ToDto(TaskItem t) => new() { CommentCount = t.CommentCount, Id = t.Id.ToString(), Reference = t.Reference, Title = t.Title, ProjectId = t.ProjectId.ToString(), Status = t.Status, Priority = t.Priority, AssigneeId = t.AssigneeId?.ToString() ?? "", DueDate = Iso(t.DueDate), Position = t.Position, LabId = t.LabId, SectionId = t.SectionId };
     public static ProjectDto ToDto(Project p, IEnumerable<Guid> memberIds) => new() { Id = p.Id.ToString(), Name = p.Name, Key = p.Key, Description = p.Description, Status = p.Status, Color = p.Color, StartDate = Iso(p.StartDate), DueDate = Iso(p.DueDate), LabId = p.LabId, SectionId = p.SectionId, MemberIds = memberIds.Select(id => id.ToString()).ToList() };
     public static MemberDto ToDto(MemberWithUser m) => new() { Id = m.Id.ToString(), UserId = m.UserId, Name = m.Name, Email = m.Email, Initials = string.Concat(m.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(p => char.ToUpperInvariant(p[0]))), Role = m.Role, Status = m.Status == "active" ? "Active" : m.Status == "invited" ? "Invited" : m.Status == "inactive" ? "Inactive" : "Away", JoinedDate = m.JoinedAt.ToString("yyyy-MM-dd"), LastActive = m.LastActiveAt?.ToString("yyyy-MM-dd") ?? "Never signed in", LabId = m.LabId, SectionId = m.SectionId, LabCode = m.LabCode, LabName = m.LabName, SectionCode = m.SectionCode, SectionName = m.SectionName };
     public async Task<WorkspaceDto> GetAsync(SessionContextDto actor, CancellationToken ct)
     {
         using var span=Atlas.Application.Observability.ApplicationTracing.Source.StartActivity("Workspace.Get");
-        var filter = new OrgScopeFilter(actor.IsAdministrator, actor.Scope.LabId, actor.Scope.SectionId);
+        var filter = new OrgScopeFilter(actor.IsAdministrator, actor.Scope.LabId, actor.Scope.SectionId, actor.User.Id);
         var visibleProjects = actor.Permissions.Contains("tasks.view") ? await projects.ListAsync(filter, ct) : [];
         var visibleTasks = actor.Permissions.Contains("tasks.view") ? await tasks.ListAsync(filter, ct) : [];
         var allMemberships = await memberships.ListAllAsync(ct);
-        var visibleMembers = (await members.ListWithUserAsync(ct)).Where(m => m.UserId == actor.User.Id || actor.IsAdministrator || (actor.Scope.IsAssigned && m.LabId == actor.Scope.LabId && m.SectionId == actor.Scope.SectionId));
+        var visibleProjectIds = visibleProjects.Select(p => p.Id).ToHashSet();
+        var collaboratorIds = allMemberships.Where(m => visibleProjectIds.Contains(m.ProjectId)).Select(m => m.MemberId)
+            .Concat(visibleProjects.Select(p => p.OwnerId))
+            .Concat(visibleTasks.Where(t => t.AssigneeId.HasValue).Select(t => t.AssigneeId!.Value)).ToHashSet();
+        var visibleMembers = (await members.ListWithUserAsync(ct)).Where(m => m.UserId == actor.User.Id || actor.IsAdministrator || collaboratorIds.Contains(m.Id));
         return new WorkspaceDto { Projects = visibleProjects.Select(p => ToDto(p, allMemberships.Where(m => m.ProjectId == p.Id).Select(m => m.MemberId))).ToList(), Tasks = visibleTasks.Select(ToDto).ToList(), Members = visibleMembers.Select(ToDto).ToList() };
     }
     public async Task<Project> ProjectAsync(SessionContextDto actor, Guid id, CancellationToken ct)
     {
         var project = await projects.GetByIdAsync(id, ct) ?? throw new NotFoundException("Project was not found.");
-        await guard.ScopeAsync(actor, project.LabId, project.SectionId, ct);
+        if (!await IsProjectMemberAsync(actor, project.Id, ct))
+            throw new ForbiddenException("You are not a member of this project.");
         return project;
     }
     public async Task<TaskItem> TaskAsync(SessionContextDto actor, Guid id, CancellationToken ct)
     {
         var task = await tasks.GetByIdAsync(id, ct) ?? throw new NotFoundException("Task was not found.");
-        await guard.ScopeAsync(actor, task.LabId, task.SectionId, ct);
-        await ProjectAsync(actor, task.ProjectId, ct);
+        if (!await IsProjectMemberAsync(actor, task.ProjectId, ct))
+        {
+            throw new ForbiddenException("You are not a member of this project.");
+        }
         return task;
+    }
+    private async Task<bool> IsProjectMemberAsync(SessionContextDto actor, Guid projectId, CancellationToken ct)
+    {
+        if (actor.IsAdministrator) return true;
+        var member = await members.GetByUserIdAsync(actor.User.Id, ct);
+        if (member is null) return false;
+        return (await projects.GetByIdAsync(projectId, ct))?.OwnerId == member.Id ||
+            (await memberships.ListForProjectAsync(projectId, ct)).Contains(member.Id);
+    }
+    public async Task<IReadOnlyList<MemberDto>> TeamOptionsAsync(SessionContextDto actor, CancellationToken ct)
+    {
+        if (!actor.Permissions.Contains("tasks.create") && !actor.Permissions.Contains("tasks.edit"))
+            throw new ForbiddenException("You do not have permission to manage project teams.");
+        return (await members.ListWithUserAsync(ct)).Where(m => m.Status != "inactive").Select(ToDto).ToList();
     }
     public async Task<ProjectDto> SaveProjectAsync(SessionContextDto actor, Guid? id, ProjectInput input, CancellationToken ct)
     {
@@ -51,16 +72,13 @@ public sealed class WorkspaceService(IProjectRepository projects, ITaskRepositor
         Text(input.Name, 2, 120, "project name");
         if (!Regex.IsMatch(input.Key, "^[A-Za-z]{2,4}$") || !ProjectStatuses.Contains(input.Status)) throw new ValidationException("Invalid project key or status.");
         Text(input.Description ?? "", 0, 2000, "description"); Text(input.Color, 1, 64, "color");
-        if (previous is null || input.LabId != previous.LabId || input.SectionId != previous.SectionId) await guard.ActiveOrgAsync(input.LabId, input.SectionId, ct);
-        await guard.ScopeAsync(actor, input.LabId, input.SectionId, ct);
         var ids = input.MemberIds.Select(Guid.Parse).Distinct().ToList();
         var available = await members.ListWithUserAsync(ct);
         foreach (var memberId in ids)
         {
-            var candidate = available.SingleOrDefault(m => m.Id == memberId) ?? throw new ValidationException("Member was not found.");
-            if (!actor.IsAdministrator && (candidate.LabId != input.LabId || candidate.SectionId != input.SectionId)) throw new ForbiddenException("Project members must belong to its Lab and Section.");
+            if (!available.Any(m => m.Id == memberId)) throw new ValidationException("Member was not found.");
         }
-        var owner = ids.FirstOrDefault();
+        var owner = previous?.OwnerId ?? ids.FirstOrDefault();
         if (owner == Guid.Empty) owner = previous?.OwnerId ?? available.FirstOrDefault(m => m.UserId == actor.User.Id)?.Id ?? throw new ValidationException("A project owner is required.");
         var project = new Project { Id = id ?? Guid.Empty, Name = input.Name, Key = input.Key.ToUpperInvariant(), Description = input.Description ?? "", Status = input.Status, Color = input.Color, OwnerId = owner, StartDate = input.StartDate is null ? previous?.StartDate ?? DateTime.UtcNow.Date : Date(input.StartDate), DueDate = Date(input.DueDate), LabId = input.LabId, SectionId = input.SectionId };
         await writer.SaveProjectAsync(project, ids, id is null, ct);
@@ -97,7 +115,9 @@ public sealed class WorkspaceService(IProjectRepository projects, ITaskRepositor
         {
             if (assigning) await guard.PermissionAsync(actor, "tasks.assign", ct);
             var member = (await members.ListWithUserAsync(ct)).SingleOrDefault(m => m.Id == assignee) ?? throw new ValidationException("Assignee was not found.");
-            if (!actor.IsAdministrator && (member.LabId != task.LabId || member.SectionId != task.SectionId)) throw new ForbiddenException("Assignee must belong to the task's Lab and Section.");
+            var project = await projects.GetByIdAsync(task.ProjectId, ct) ?? throw new NotFoundException("Project was not found.");
+            if (project.OwnerId != member.Id && !(await memberships.ListForProjectAsync(task.ProjectId, ct)).Contains(member.Id))
+                throw new ValidationException("Assignee must belong to the project team.");
         }
     }
     public async Task ReorderAsync(SessionContextDto actor, TaskReorderInput input, CancellationToken ct)

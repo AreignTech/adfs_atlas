@@ -111,15 +111,60 @@ and restore policies for the deployment environment.
 
 ## Authorization
 
-`AccessGuard` centrally enforces the original 21 permission names and exact
-Lab/Section matches. Legacy member-role fallback is preserved when no explicit
+Profile photos accept PNG, JPEG, GIF and WebP data URLs up to 2 MiB of decoded
+image data. The browser validates type/size before reading the file; the API
+validates Base64, file signatures and decoded size independently. Profile
+requests retain a 3,000,000-byte body cap to allow Base64 overhead. Oversized
+requests return HTTP 413 with a useful error. Omitting `profileImage` preserves
+the current photo; explicitly sending `null` removes it. Save changes persists
+the photo and refreshes the session-backed avatars.
+
+### Task comments
+
+Migration `008_task_comments.sql` adds task-owned comments with cascading task/user
+foreign keys and indexes on `(task_id, created_at DESC, id DESC)` and `user_id`.
+Run the existing migration command before starting the updated API.
+
+`GET /api/tasks/{taskId}/comments?offset=0&limit=20` returns newest-first comments,
+the total count, and permissions for the current caller. Page sizes are capped at
+100. `GET /api/tasks/{taskId}/comments/count` returns only the count. POST to the
+collection adds a comment; PUT/DELETE to `/{commentId}` update/remove it.
+All operations require `tasks.view` and project access through ownership,
+team membership, or administrator access. Mutations also require `tasks.edit`; only the author or an
+administrator may edit/delete. User IDs and timestamps come from the server.
+Content is trimmed, must contain non-whitespace text, and is limited to 5000
+UTF-16 code units. Comments render as plain text. Deletion is permanent, matching
+existing task deletion. Removing a task or user also removes their comments.
+
+Workspace/task queries return indexed comment counts without fetching comment
+content. The shared task detail dialog loads comments on demand; successful
+add/delete operations update the board count immediately. Comments are paginated
+using offsets, so simultaneous changes by other users may require refreshing to
+see a fully current list.
+
+Project team membership grants visibility and access to that project's tasks,
+including comments, even when the member belongs to another Lab/Section or has
+no organization assignment. Workspace lists, project search, and direct access
+use this rule. Removing membership revokes this access on the next request,
+unless the user is the project owner or an administrator.
+Membership does not grant additional role permissions or access to unrelated
+projects. Visible project collaborators are included for team/assignee labels.
+
+Lab and Section codes classify teammates for directory filtering; they do not
+grant or restrict project/task access or task assignment. The project editor
+provides name/email search and independent Lab/Section filters without clearing
+selected teammates. New projects need no Lab/Section assignment. The authenticated
+`GET /api/members/team-options` directory requires `tasks.create` or `tasks.edit`
+and includes teammates across all Labs/Sections. Assignees must be project owners
+or team members. Existing project organization metadata is retained for compatibility.
+
+`AccessGuard` centrally enforces the original 21 permission names. Legacy member-role fallback is preserved when no explicit
 role assignment exists. Role names containing 'admin' retain the original
 administrator organization bypass. Explicit permission checks still use the
 resolved permission set.
 
-Scope checks apply to both existing records and requested destinations. Missing
-organization assignments do not grant unscoped access. Nonadministrators see
-only their own organization in the workspace. Administrative changes use
+Missing organization assignments do not prevent project membership access.
+Nonadministrators see projects they own or belong to. Administrative changes use
 serializable transactions and audit records; system role names/deletion,
 self-role changes and last active administrator removal/demotion are protected.
 

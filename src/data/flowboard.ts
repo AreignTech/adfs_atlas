@@ -68,6 +68,7 @@ export const projectSchema = z.object({
 })
 
 export const taskSchema = z.object({
+  commentCount: z.number().int().nonnegative().default(0),
   id: z.string(),
   /** Short human key shown in the UI, e.g. "TSK-0042". */
   reference: z.string(),
@@ -419,6 +420,7 @@ export const tasks: Task[] = taskSeeds.map(
       assigneeId,
       dueDate: dateFromToday(dueOffset),
       position: index,
+      commentCount: 0,
     }
   }
 )

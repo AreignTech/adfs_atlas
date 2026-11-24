@@ -57,8 +57,8 @@ export interface ProjectInput {
   startDate?: string
   color: string
   memberIds: string[]
-  labId: string
-  sectionId: string
+  labId?: string | null
+  sectionId?: string | null
 }
 
 export interface TaskInput {
@@ -111,6 +111,7 @@ export interface FlowBoardActions {
 }
 
 interface FlowBoardContextValue {
+  setTaskCommentCount: (taskId: string, count: number) => void
   projects: Project[]
   tasks: Task[]
   members: Member[]
@@ -152,6 +153,9 @@ export function FlowBoardProvider({
   const [members, setMembers] = React.useState(initialData.members)
   const [syncedFrom, setSyncedFrom] = React.useState(initialData)
   const reorderQueue = React.useRef<Promise<void>>(Promise.resolve())
+  const setTaskCommentCount = React.useCallback((taskId: string, count: number) => {
+    setTasks((current) => current.map((task) => task.id === taskId ? { ...task, commentCount: count } : task))
+  }, [])
 
   // Adopt fresh server data during render (React's "adjust state on prop
   // change" pattern) rather than in an effect, which would cause a cascading
@@ -393,6 +397,7 @@ export function FlowBoardProvider({
       isAdministrator,
       taskStats: getTaskStats(tasks),
       actions,
+      setTaskCommentCount,
 
       projectById: (projectId) =>
         projects.find((project) => project.id === projectId),
@@ -407,7 +412,7 @@ export function FlowBoardProvider({
       projectsForMember: (memberId) =>
         projects.filter((project) => project.memberIds.includes(memberId)),
     }),
-    [projects, tasks, members, actions, isAdministrator, currentUserEmail]
+    [projects, tasks, members, actions, isAdministrator, currentUserEmail, setTaskCommentCount]
   )
 
   return (

@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import { ProjectTeamPicker } from "@/components/project-team-picker"
 import { Plus, SquarePen } from "lucide-react"
 import { z } from "zod"
 
@@ -29,12 +30,10 @@ import { cn } from "@/lib/utils"
 import { useFlowBoard } from "@/data/flowboard-store"
 import {
   dateFromToday,
-  getMember,
   projectColorOptions,
   projectStatuses,
   type Project,
 } from "@/data/flowboard"
-import { getLabCodes, getSectionCodes } from "@/lib/api/org"
 
 const projectFormSchema = z.object({
   name: z.string().min(2, "Give the project a name."),
@@ -48,8 +47,8 @@ const projectFormSchema = z.object({
   dueDate: z.string().min(1, "Pick a target date."),
   color: z.string().min(1),
   memberIds: z.array(z.string()),
-  labId: z.string().uuid("Select a Lab Code."),
-  sectionId: z.string().uuid("Select a Section Code."),
+  labId: z.string().nullable().optional(),
+  sectionId: z.string().nullable().optional(),
 })
 
 export type ProjectFormValues = z.infer<typeof projectFormSchema>
@@ -73,8 +72,8 @@ function toFormValues(project: Project): ProjectFormValues {
     dueDate: project.dueDate,
     color: project.color,
     memberIds: project.memberIds,
-    labId: project.labId ?? "",
-    sectionId: project.sectionId ?? "",
+    labId: project.labId ?? null,
+    sectionId: project.sectionId ?? null,
   }
 }
 
@@ -85,7 +84,7 @@ export function ProjectDialog({
   trigger,
   children,
 }: ProjectDialogProps) {
-  const { members, actions } = useFlowBoard()
+  const { currentMember, actions } = useFlowBoard()
   const isEdit = Boolean(project)
 
   const [internalOpen, setInternalOpen] = useState(false)
@@ -102,28 +101,12 @@ export function ProjectDialog({
           status: "planning",
           dueDate: dateFromToday(30),
           color: projectColorOptions[0].value,
-          memberIds: members.slice(0, 2).map((member) => member.id),
-          labId: "",
-          sectionId: "",
+          memberIds: currentMember ? [currentMember.id] : [],
+          labId: null,
+          sectionId: null,
         }
   )
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [labCodes, setLabCodes] = useState<
-    Awaited<ReturnType<typeof getLabCodes>>
-  >([])
-  const [sectionCodes, setSectionCodes] = useState<
-    Awaited<ReturnType<typeof getSectionCodes>>
-  >([])
-
-  useEffect(() => {
-    getLabCodes(false).then(setLabCodes).catch(() => setLabCodes([]))
-  }, [])
-
-  useEffect(() => {
-    getSectionCodes(undefined, false)
-      .then(setSectionCodes)
-      .catch(() => setSectionCodes([]))
-  }, [])
 
   function reset() {
     setValues(
@@ -136,9 +119,9 @@ export function ProjectDialog({
             status: "planning",
             dueDate: dateFromToday(30),
             color: projectColorOptions[0].value,
-            memberIds: members.slice(0, 2).map((member) => member.id),
-            labId: "",
-            sectionId: "",
+            memberIds: currentMember ? [currentMember.id] : [],
+            labId: null,
+            sectionId: null,
           }
     )
     setErrors({})
@@ -212,13 +195,13 @@ export function ProjectDialog({
           New project
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-[560px]">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-[640px]">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? `Edit ${project!.name}` : "New project"}
           </DialogTitle>
           <DialogDescription>
-            Set the scope, team and target date. Tasks can be added right after.
+            Set the team and target date. Tasks can be added right after.
           </DialogDescription>
         </DialogHeader>
 
@@ -289,70 +272,6 @@ export function ProjectDialog({
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="project-lab">Lab Code</FieldLabel>
-                <Select
-                  items={labCodes.map((lab) => ({
-                    value: lab.id,
-                    label: `${lab.code} - ${lab.name}`,
-                  }))}
-                  value={values.labId}
-                  onValueChange={(value) =>
-                    value &&
-                    setValues((prev) => ({
-                      ...prev,
-                      labId: value,
-                    }))
-                  }
-                >
-                  <SelectTrigger id="project-lab" className="w-full">
-                    <SelectValue placeholder="Select Lab" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {labCodes.map((lab) => (
-                        <SelectItem key={lab.id} value={lab.id}>
-                          {lab.code} - {lab.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                {errors.labId && <FieldError>{errors.labId}</FieldError>}
-              </Field>
-
-              <Field>
-                <FieldLabel htmlFor="project-section">Section Code</FieldLabel>
-                <Select
-                  items={sectionCodes.map((section) => ({
-                    value: section.id,
-                    label: `${section.code} - ${section.name}`,
-                  }))}
-                  value={values.sectionId}
-                  onValueChange={(value) =>
-                    value &&
-                    setValues((prev) => ({
-                      ...prev,
-                      sectionId: value,
-                    }))
-                  }
-                >
-                  <SelectTrigger id="project-section" className="w-full">
-                    <SelectValue placeholder="Select Section" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {sectionCodes.map((section) => (
-                        <SelectItem key={section.id} value={section.id}>
-                          {section.code} - {section.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                {errors.sectionId && <FieldError>{errors.sectionId}</FieldError>}
-              </Field>
-
-              <Field>
                 <FieldLabel htmlFor="project-status">Status</FieldLabel>
                 <Select
                   items={projectStatuses}
@@ -411,30 +330,7 @@ export function ProjectDialog({
               </Field>
             </div>
 
-            <Field>
-              <FieldLabel>Team</FieldLabel>
-              <div className="flex flex-wrap gap-2">
-                {members.map((member) => {
-                  const selected = values.memberIds.includes(member.id)
-                  return (
-                    <button
-                      key={member.id}
-                      type="button"
-                      aria-pressed={selected}
-                      onClick={() => toggleMember(member.id)}
-                      className={cn(
-                        "cursor-pointer rounded-full border px-3 py-1.5 text-sm transition-colors",
-                        selected
-                          ? "border-primary bg-primary/10 font-medium"
-                          : "hover:bg-accent"
-                      )}
-                    >
-                      {getMember(member.id)?.name ?? member.name}
-                    </button>
-                  )
-                })}
-              </div>
-            </Field>
+            <ProjectTeamPicker key={`${project?.id ?? "new"}-${isOpen}`} selectedIds={values.memberIds} onToggle={toggleMember} />
           </FieldGroup>
 
           <div className="flex justify-end gap-2">

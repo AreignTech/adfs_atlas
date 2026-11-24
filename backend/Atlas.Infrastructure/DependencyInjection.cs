@@ -40,6 +40,7 @@ public static class DependencyInjection
         services.AddScoped<IAdminWriter, AdminWriter>();
         services.AddScoped<ISettingsRepository, SettingsRepository>();
         services.AddScoped<ITaskRepository, TaskRepository>();
+        services.AddScoped<ITaskCommentRepository, TaskCommentRepository>();
         services.AddScoped<IMemberRepository, MemberRepository>();
         services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
 

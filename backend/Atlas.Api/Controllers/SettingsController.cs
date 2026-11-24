@@ -24,9 +24,37 @@ public sealed class SettingsController(ISettingsRepository settings, IUserReposi
         if (input.ValueKind != JsonValueKind.Object || !input.TryGetProperty("firstName", out var first) || first.ValueKind != JsonValueKind.String || !input.TryGetProperty("lastName", out var last) || last.ValueKind != JsonValueKind.String || !input.TryGetProperty("email", out var emailValue) || emailValue.ValueKind != JsonValueKind.String) throw new ValidationException("First name, last name and email are required.");
         var name = ((input.GetProperty("firstName").GetString() ?? "") + " " + (input.GetProperty("lastName").GetString() ?? "")).Trim(); var email = input.GetProperty("email").GetString() ?? "";
         WorkspaceService.Text(name, 2, 120, "name"); if (!MailAddress.TryCreate(email, out var address) || address.Address != email || email.Length > 255) throw new ValidationException("Invalid email.");
-        var image = input.TryGetProperty("profileImage", out var avatar) ? avatar.GetString() : null;
-        if (image is not null && (image.Length > 2_500_000 || !(image.StartsWith("data:image/png;base64,") || image.StartsWith("data:image/jpeg;base64,") || image.StartsWith("data:image/webp;base64,")))) throw new ValidationException("Use a PNG, JPEG or WebP image under 2 MB.");
+        string? image;
+        if (input.TryGetProperty("profileImage", out var avatar))
+        {
+            if (avatar.ValueKind is not (JsonValueKind.Null or JsonValueKind.String)) throw new ValidationException("Invalid profile image.");
+            image = avatar.GetString();
+            ValidateImage(image);
+        }
+        else image = (await users.GetByIdAsync(UserId, ct))?.Image;
         await settings.SaveProfileAsync(UserId, name, email.ToLowerInvariant(), image, input, ct); return new { success = true };
+    }
+    private static void ValidateImage(string? image)
+    {
+        if (image is null) return;
+        const int maxBytes = 2 * 1024 * 1024;
+        const string error = "Use a JPG, PNG, GIF or WebP image no larger than 2 MB.";
+        var separator = image.IndexOf(',');
+        if (separator < 0 || image.Length > ((maxBytes + 2) / 3) * 4 + 32) throw new ValidationException(error);
+        var kind = image[..separator];
+        if (kind is not ("data:image/png;base64" or "data:image/jpeg;base64" or "data:image/gif;base64" or "data:image/webp;base64")) throw new ValidationException(error);
+        var bytes = new byte[maxBytes];
+        if (!Convert.TryFromBase64String(image[(separator + 1)..], bytes, out var length) || length == 0) throw new ValidationException(error);
+        var data = bytes.AsSpan(0, length);
+        var valid = kind switch
+        {
+            "data:image/png;base64" => data.StartsWith(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 }),
+            "data:image/jpeg;base64" => data.StartsWith(new byte[] { 255, 216, 255 }),
+            "data:image/gif;base64" => data.StartsWith("GIF87a"u8) || data.StartsWith("GIF89a"u8),
+            "data:image/webp;base64" => data.Length >= 12 && data[..4].SequenceEqual("RIFF"u8) && data.Slice(8, 4).SequenceEqual("WEBP"u8),
+            _ => false
+        };
+        if (!valid) throw new ValidationException(error);
     }
     [HttpGet("{key}")]
     [ProducesResponseType<Atlas.Api.Observability.PreferencesDocumentation>(200)]

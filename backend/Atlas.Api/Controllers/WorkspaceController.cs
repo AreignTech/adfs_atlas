@@ -15,6 +15,8 @@ public sealed class WorkspaceController(WorkspaceService service, IProjectReposi
     private SessionContextDto Actor => ((AuthSession)HttpContext.Items["AtlasSession"]!).Context;
     [HttpGet("workspace")]
     public Task<WorkspaceDto> Workspace(CancellationToken ct) => service.GetAsync(Actor, ct);
+    [HttpGet("members/team-options")]
+    public Task<IReadOnlyList<MemberDto>> TeamOptions(CancellationToken ct) => service.TeamOptionsAsync(Actor, ct);
     [HttpGet("projects/{id:guid}")]
     public async Task<ProjectDto> Project(Guid id, CancellationToken ct)
     {
@@ -23,7 +25,7 @@ public sealed class WorkspaceController(WorkspaceService service, IProjectReposi
     }
     [HttpGet("projects")]
     [ProducesResponseType<PageResult<Atlas.Domain.Entities.Project>>(200)]
-    public async Task<object> Projects([FromQuery] SearchQuery query, CancellationToken ct) { await guard.PermissionAsync(Actor, "tasks.view", ct); return await search.ProjectsAsync(new(Actor.IsAdministrator, Actor.Scope.LabId, Actor.Scope.SectionId), query, ct); }
+    public async Task<object> Projects([FromQuery] SearchQuery query, CancellationToken ct) { await guard.PermissionAsync(Actor, "tasks.view", ct); return await search.ProjectsAsync(new(Actor.IsAdministrator, Actor.Scope.LabId, Actor.Scope.SectionId, Actor.User.Id), query, ct); }
     [HttpPost("projects")]
     public Task<ProjectDto> CreateProject(ProjectInput input, CancellationToken ct) => service.SaveProjectAsync(Actor, null, input, ct);
     [HttpPut("projects/{id:guid}")]

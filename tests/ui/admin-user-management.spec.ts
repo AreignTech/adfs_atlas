@@ -108,23 +108,11 @@ test("administrator edits, resets password of, and deactivates a member", async 
     await afterResetPage.getByRole("button", { name: "Login", exact: true }).click()
     await expect(afterResetPage).toHaveURL(/\/dashboard$/)
 
-    // The member is not an administrator: no management actions are offered.
+    // The member is not an administrator: /users is gated server-side, so
+    // direct navigation lands back on the dashboard with no team table.
     await afterResetPage.goto("/users")
-    await afterResetPage.getByPlaceholder(/search/i).fill(email)
-    const memberRow = afterResetPage.getByRole("row").filter({ hasText: email })
-    await memberRow
-      .getByRole("button", { name: "More actions for Renamed Mgmt" })
-      .click()
-    await expect(
-      afterResetPage.getByRole("menuitem", { name: "Edit details" })
-    ).toHaveCount(0)
-    await expect(
-      afterResetPage.getByRole("menuitem", { name: "Reset password" })
-    ).toHaveCount(0)
-    await expect(
-      afterResetPage.getByRole("menuitem", { name: "Deactivate account" })
-    ).toHaveCount(0)
-    await afterResetPage.keyboard.press("Escape")
+    await expect(afterResetPage).toHaveURL(/\/dashboard$/)
+    await expect(afterResetPage.getByPlaceholder(/search/i)).toHaveCount(0)
 
     // Deactivate — sign-in is blocked until an administrator reactivates.
     await page.bringToFront()

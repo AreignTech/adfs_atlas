@@ -3,7 +3,7 @@ using Atlas.Domain.Entities;
 
 namespace Atlas.Application.Interfaces.Repositories;
 
-public sealed record OrgScopeFilter(bool IsAdministrator, Guid? LabId, Guid? SectionId);
+public sealed record OrgScopeFilter(bool IsAdministrator, Guid? LabId, Guid? SectionId, string? UserId = null);
 
 public interface IProjectRepository
 {

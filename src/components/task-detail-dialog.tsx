@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { TaskComments } from "@/components/task-comments"
 import { CalendarClock, ExternalLink, TriangleAlert } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -79,7 +80,7 @@ export function TaskDetailDialog({
 
   return (
     <Dialog open onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[540px]">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-[640px]">
         <DialogHeader>
           <DialogTitle>{task.title}</DialogTitle>
           <DialogDescription className="flex flex-wrap items-center gap-2">
@@ -227,6 +228,8 @@ export function TaskDetailDialog({
             </span>
           </div>
         </div>
+
+        <TaskComments key={task.id} taskId={task.id} />
 
         <DialogFooter className="sm:justify-between">
           <Button

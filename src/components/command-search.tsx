@@ -10,7 +10,6 @@ import {
   ListTodo,
   ShieldCheck,
   User,
-  Users,
   type LucideIcon,
 } from "lucide-react"
 
@@ -63,8 +62,6 @@ export function CommandSearch({ open, onOpenChange }: CommandSearchProps) {
       group: "Workspace",
       icon: CalendarClock,
     },
-    { title: "Team", url: "/users", group: "Workspace", icon: Users },
-
     // Settings
     {
       title: "Profile",

@@ -303,10 +303,10 @@ internal static class RepositoryVerification
             Check((await projectMembers.ListForProjectAsync(project.Id)).Count == 1, "project membership replaces");
             Check(await projects.CountOwnedAsync(member.Id) == 1, "project ownership count");
 
-            var scoped = await projects.ListAsync(new OrgScopeFilter(false, lab.Id, section.Id));
-            Check(scoped.Count == 1 && scoped[0].Id == project.Id, "project list honours org scope");
+            var scoped = await projects.ListAsync(new OrgScopeFilter(false, lab.Id, section.Id, userId));
+            Check(scoped.Count == 1 && scoped[0].Id == project.Id, "project list honours project membership");
             var otherScope = await projects.ListAsync(new OrgScopeFilter(false, Guid.NewGuid(), Guid.NewGuid()));
-            Check(otherScope.Count == 0, "project list excludes other org scopes");
+            Check(otherScope.Count == 0, "project list excludes nonmembers");
 
             var position = await tasks.NextPositionAsync(project.Id, "todo");
             var task = new TaskItem
@@ -371,9 +371,9 @@ internal static class RepositoryVerification
                 Check((await tasks.GetByIdAsync(task.Id))?.Status == "in-review", "failed reorder rolls back every preceding update");
             }
             var search = provider.GetRequiredService<ISearchRepository>();
-            var page = await search.ProjectsAsync(new(false, lab.Id, section.Id), new(1, 1, suffix, "planning"));
+            var page = await search.ProjectsAsync(new(false, lab.Id, section.Id, userId), new(1, 1, suffix, "planning"));
             Check(page.Total == 1 && page.Items.Single().Id == project.Id, "pagination, literal search and status filtering");
-            Check((await search.ProjectsAsync(new(false, Guid.NewGuid(), Guid.NewGuid()), new())).Total == 0, "paged query respects organizational scope");
+            Check((await search.ProjectsAsync(new(false, lab.Id, section.Id), new())).Total == 0, "matching organization does not grant project access");
             Check((await search.ProjectsAsync(new(true, null, null), new(Search: "' OR 1=1 --"))).Total == 0, "search parameters cannot inject SQL");
             Check(await tasks.CountByProjectAsync(project.Id) == 1, "task count by project");
 

@@ -29,6 +29,7 @@ import {
   ArrowLeft,
   FolderOpen,
   ListTodo,
+  MessageSquare,
   SquareKanban,
   TriangleAlert,
 } from "lucide-react"
@@ -639,6 +640,9 @@ function SortableTaskCard({
      }}
    >
      <p className="text-sm font-medium leading-snug">{task.title}</p>
+     <span className="mt-2 flex items-center gap-1 text-xs text-muted-foreground" aria-label={`${task.commentCount} comments`}>
+       <MessageSquare className="size-3.5" aria-hidden="true" />{task.commentCount}
+     </span>
      <div className="mt-3 flex items-center justify-between gap-2">
        <Badge
          variant="outline"

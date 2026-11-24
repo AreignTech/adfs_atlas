@@ -57,11 +57,6 @@ const navGroups = [
           url: "/calendar",
           icon: CalendarClock,
         },
-        {
-          title: "Team",
-          url: "/users",
-          icon: Users,
-        },
       ],
     },
     {
@@ -180,7 +175,7 @@ export function AppSidebar({
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <SidebarNotification />
+        <SidebarNotification isAdministrator={isAdministrator} />
         <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>

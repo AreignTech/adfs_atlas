@@ -1,6 +1,6 @@
 "use client"
 
-import { Palette, Dices, Upload, ExternalLink, Sun, Moon } from "lucide-react"
+import { Dices, Upload, Sun, Moon } from "lucide-react"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Field, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field"
 import { Button } from "@/components/ui/button"
@@ -367,37 +367,6 @@ export function ThemeTab({
         </AccordionItem>
       </Accordion>
 
-      {/* Tweakcn */}
-      <div className="flex flex-col p-4 bg-muted rounded-lg gap-3">
-        <div className="flex items-center gap-2">
-          <Palette className="size-4 text-primary" />
-          <span className="text-sm font-medium">Advanced Customization</span>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          For advanced theme customization with real-time preview, visual color
-          picker, and hundreds of prebuilt themes, visit{" "}
-          <a
-            href="https://tweakcn.com/editor/theme"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary hover:underline font-medium cursor-pointer"
-          >
-            tweakcn.com
-          </a>
-        </p>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full cursor-pointer"
-          onClick={() =>
-            typeof window !== "undefined" &&
-            window.open("https://tweakcn.com/editor/theme", "_blank")
-          }
-        >
-          <ExternalLink data-icon="inline-start" />
-          Open Tweakcn
-        </Button>
-      </div>
     </div>
   )
 }

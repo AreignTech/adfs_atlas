@@ -48,6 +48,7 @@ public sealed class Project
 
 public sealed class TaskItem
 {
+    public int CommentCount { get; set; }
     public Guid Id { get; set; }
     public string Reference { get; set; } = string.Empty;
     public Guid ProjectId { get; set; }

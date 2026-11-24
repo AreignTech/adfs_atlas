@@ -4,7 +4,7 @@ SET XACT_ABORT ON;
 DECLARE @expected TABLE (name SYSNAME PRIMARY KEY);
 INSERT INTO @expected VALUES
     ('user'), ('session'), ('account'), ('verification'),
-    ('member'), ('project'), ('task'), ('project_member'),
+    ('member'), ('project'), ('task'), ('project_member'), ('task_comment'),
     ('lab_code'), ('section_code'), ('user_org_assignment'), ('org_audit'),
     ('app_role'), ('app_permission'), ('app_role_permission'), ('app_user_role'), ('rbac_audit'),
     ('ldap_config'), ('ldap_identity'), ('ldap_group_mapping'), ('ldap_audit');
@@ -42,4 +42,4 @@ IF EXISTS (SELECT 1 FROM dbo.task t LEFT JOIN dbo.project p ON p.id = t.project_
 IF EXISTS (SELECT 1 FROM dbo.account a LEFT JOIN dbo.[user] u ON u.id = a.user_id WHERE u.id IS NULL)
     THROW 51000, 'Orphan account detected.', 1;
 
-SELECT 'PASS: 21 entities, trusted constraints, reference permission sets and relationship integrity.';
+SELECT 'PASS: required entities, trusted constraints, reference permission sets and relationship integrity.';

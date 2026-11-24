@@ -25,7 +25,6 @@ import { cn } from "@/lib/utils"
 import { useFlowBoard } from "@/data/flowboard-store"
 import {
   formatShortDate,
-  getProject,
   getTaskStatus,
   isOverdue,
   priorityClasses,
@@ -33,7 +32,7 @@ import {
 } from "@/data/flowboard"
 
 export function RecentTasks() {
-  const { tasks, memberById } = useFlowBoard()
+  const { tasks, memberById, projectById } = useFlowBoard()
 
   const upcoming = tasks
     .filter((task) => task.status !== "completed")
@@ -79,7 +78,7 @@ export function RecentTasks() {
             {upcoming.map((task) => {
               const status = getTaskStatus(task.status)
               const PriorityIcon = priorityIcons[task.priority]
-              const project = getProject(task.projectId)
+              const project = projectById(task.projectId)
               const assignee = memberById(task.assigneeId)
               const overdue = isOverdue(task)
 

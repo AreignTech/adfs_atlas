@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Controller, useForm } from "react-hook-form"
+import { Controller, useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
 import {
   Field,
@@ -30,6 +30,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Upload } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 import { api } from "@/lib/api/client"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "@/components/ui/toast"
@@ -52,26 +53,34 @@ const userFormSchema = z.object({
 type UserFormValues = z.infer<typeof userFormSchema>
 
 export default function UserSettingsPage() {
+  const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [savedImage, setSavedImage] = useState<string | null>(null)
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [useDefaultIcon, setUseDefaultIcon] = useState(true)
+  const [imageError, setImageError] = useState("")
+  const [readingImage, setReadingImage] = useState(false)
+  const [profileReady, setProfileReady] = useState(false)
+  const [profileLoadError, setProfileLoadError] = useState("")
+  const [loadAttempt, setLoadAttempt] = useState(0)
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
-      firstName: "Maya",
-      lastName: "Chen",
-      email: "maya.chen@adfs.local",
-      phone: "+1 (415) 555-0142",
-      website: "https://atlas.adfs.local",
-      location: "San Francisco, CA",
-      role: "Product Lead",
-      bio: "Product lead at Northwind Studio. I plan the work, keep the board honest, and make sure nothing ships late.",
-      company: "Northwind Studio",
-      timezone: "America/Los_Angeles",
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      website: "",
+      location: "",
+      role: "",
+      bio: "",
+      company: "",
+      timezone: "",
       language: "English",
     },
   })
+  const [firstName, lastName] = useWatch({ control: form.control, name: ["firstName", "lastName"] })
 
   useEffect(() => {
     let active = true
@@ -81,12 +90,15 @@ export default function UserSettingsPage() {
         const parts = data.user.name.split(" ")
         form.reset(data.profile ?? { firstName: parts[0], lastName: parts.slice(1).join(" "), email: data.user.email })
         setProfileImage(data.user.image)
+        setSavedImage(data.user.image)
         setUseDefaultIcon(!data.user.image)
-      }).catch((error: unknown) => toast.add({ type: "error", title: "Could not load profile", description: error instanceof Error ? error.message : "Please try again." }))
+        setProfileReady(true)
+      }).catch((error: unknown) => { if (active) setProfileLoadError(error instanceof Error ? error.message : "Could not load your profile. Please try again.") })
     return () => { active = false }
-  }, [form])
+  }, [form, loadAttempt])
 
   async function onSubmit(data: UserFormValues) {
+    if (!profileReady || readingImage) return
     try { await api("/settings/profile", "POST", { ...data, profileImage }) }
     catch (error) { toast.add({ type: "error", title: "Could not save profile", description: error instanceof Error ? error.message : "Please try again." }); return }
     toast.add({
@@ -94,6 +106,9 @@ export default function UserSettingsPage() {
       title: "Profile updated",
       description: `${data.firstName} ${data.lastName}'s profile was saved.`,
     })
+    setSavedImage(profileImage)
+    form.reset(data)
+    router.refresh()
   }
 
   const handleFileUpload = () => {
@@ -102,17 +117,33 @@ export default function UserSettingsPage() {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
+    event.target.value = ""
     if (file) {
+      setImageError("")
+      if (!["image/jpeg", "image/png", "image/gif", "image/webp"].includes(file.type)) {
+        setImageError("Choose a JPG, PNG, GIF or WebP image.")
+        return
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        setImageError("Your photo is too large. Choose an image no larger than 2 MB.")
+        return
+      }
+      setReadingImage(true)
       const reader = new FileReader()
       reader.onload = (e) => {
-        setProfileImage(e.target?.result as string)
-        setUseDefaultIcon(false)
+        if (typeof e.target?.result === "string") {
+          setProfileImage(e.target.result)
+          setUseDefaultIcon(false)
+        }
+        setReadingImage(false)
       }
+      reader.onerror = () => { setImageError("Could not read this image. Please choose it again."); setReadingImage(false) }
       reader.readAsDataURL(file)
     }
   }
 
   const handleReset = () => {
+    setImageError("")
     setProfileImage(null)
     setUseDefaultIcon(true)
     if (fileInputRef.current) {
@@ -138,6 +169,10 @@ export default function UserSettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-6">
+            {profileLoadError && <div role="alert" className="space-y-2 text-sm text-destructive">
+              <p>{profileLoadError}</p>
+              <Button type="button" variant="outline" size="sm" onClick={() => { setProfileLoadError(""); setLoadAttempt((current) => current + 1) }}>Retry loading profile</Button>
+            </div>}
             {/* Profile Picture Section */}
             <div className="flex items-center gap-6 ">
               {useDefaultIcon ? (
@@ -146,13 +181,15 @@ export default function UserSettingsPage() {
                 </div>
               ) : (
                 <Avatar className="size-20 rounded-lg">
-                  <AvatarImage src={profileImage || undefined} />
-                  <AvatarFallback>SS</AvatarFallback>
+                  <AvatarImage src={profileImage || undefined} alt="Profile photo" />
+                  <AvatarFallback>{[firstName, lastName].map((part) => part[0] ?? "").join("").toUpperCase()}</AvatarFallback>
                 </Avatar>
               )}
               <div className="flex flex-col gap-2">
                 <div className="flex gap-2">
                   <Button
+                    type="button"
+                    disabled={!profileReady || readingImage || form.formState.isSubmitting}
                     variant="default"
                     size="sm"
                     onClick={handleFileUpload}
@@ -162,6 +199,8 @@ export default function UserSettingsPage() {
                     Upload new photo
                   </Button>
                   <Button
+                    type="button"
+                    disabled={!profileReady || readingImage || form.formState.isSubmitting}
                     variant="outline"
                     size="sm"
                     onClick={handleReset}
@@ -171,13 +210,16 @@ export default function UserSettingsPage() {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Allowed JPG, GIF or PNG. Max size of 800K
+                  JPG, PNG, GIF or WebP. Maximum size: 2 MB.
                 </p>
+                {readingImage && <p role="status" className="text-xs text-muted-foreground">Reading photo…</p>}
+                {imageError && <p role="alert" className="text-sm text-destructive">{imageError}</p>}
               </div>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/jpeg,image/gif,image/png"
+                aria-label="Profile photo upload"
+                accept="image/jpeg,image/gif,image/png,image/webp"
                 onChange={handleFileChange}
                 className="hidden"
               />
@@ -494,14 +536,15 @@ export default function UserSettingsPage() {
 
             {/* Action Buttons */}
             <div className="flex justify-start gap-3">
-              <Button type="submit" className="cursor-pointer">
-                Save changes
+              <Button type="submit" className="cursor-pointer" disabled={!profileReady || readingImage || form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Saving…" : "Save changes"}
               </Button>
               <Button
                 variant="outline"
                 type="button"
                 className="cursor-pointer"
-                onClick={() => form.reset()}
+                disabled={readingImage || form.formState.isSubmitting}
+                onClick={() => { form.reset(); setProfileImage(savedImage); setUseDefaultIcon(!savedImage); setImageError("") }}
               >
                 Cancel
               </Button>

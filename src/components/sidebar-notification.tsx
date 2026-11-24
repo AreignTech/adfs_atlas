@@ -7,13 +7,18 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useFlowBoard } from "@/data/flowboard-store"
 
-export function SidebarNotification() {
+export function SidebarNotification({
+  isAdministrator = false,
+}: {
+  isAdministrator?: boolean
+}) {
   const [isVisible, setIsVisible] = React.useState(true)
   const { members } = useFlowBoard()
 
   const pending = members.filter((member) => member.status === "Invited").length
 
-  if (!isVisible || pending === 0) return null
+  // The card links to /users, which is administrator-only.
+  if (!isVisible || !isAdministrator || pending === 0) return null
 
   return (
     <Card className="mb-3 py-0 bg-muted/50 shadow-sm">

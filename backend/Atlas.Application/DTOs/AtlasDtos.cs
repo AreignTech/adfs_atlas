@@ -86,6 +86,7 @@ public sealed class ProjectDto
 
 public sealed class TaskDto
 {
+    public int CommentCount { get; set; }
     public string Id { get; set; } = string.Empty;
     public string Reference { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;

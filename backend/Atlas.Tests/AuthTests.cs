@@ -123,6 +123,56 @@ public sealed class AuthTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.Unauthorized, (await _factory.CreateClient().GetAsync("/api/settings/profile")).StatusCode);
     }
     [Fact]
+    public async Task ProfileImagesPersistAtTheDecodedSizeLimitAndCanBeRemoved()
+    {
+        var client = _factory.CreateClient();
+        (await PostAsync(client, "/api/auth/login", new { Email, password = "Compatibility123!" })).EnsureSuccessStatusCode();
+        var bytes = new byte[2 * 1024 * 1024];
+        new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 }.CopyTo(bytes, 0);
+        var image = "data:image/png;base64," + Convert.ToBase64String(bytes);
+        (await PostAsync(client, "/api/settings/profile", new { firstName = "Avatar", lastName = "Test", email = Email, profileImage = image })).EnsureSuccessStatusCode();
+        var saved = await client.GetFromJsonAsync<JsonElement>("/api/settings/profile");
+        Assert.True(image == saved.GetProperty("user").GetProperty("image").GetString(), "The image must persist without truncation.");
+        // Editing text without sending a photo must not silently erase the current photo.
+        (await PostAsync(client, "/api/settings/profile", new { firstName = "Avatar", lastName = "Updated", email = Email })).EnsureSuccessStatusCode();
+        using var scope = _factory.Services.CreateScope();
+        Assert.True(image == (await scope.ServiceProvider.GetRequiredService<IUserRepository>().GetByIdAsync(_userId))!.Image);
+        (await PostAsync(client, "/api/settings/profile", new { firstName = "Avatar", lastName = "Updated", email = Email, profileImage = (string?)null })).EnsureSuccessStatusCode();
+        Assert.Null((await scope.ServiceProvider.GetRequiredService<IUserRepository>().GetByIdAsync(_userId))!.Image);
+    }
+
+    [Fact]
+    public async Task GifImagesAreSupportedAndMalformedOrOversizeImagesReturnValidationErrors()
+    {
+        var client = _factory.CreateClient();
+        (await PostAsync(client, "/api/auth/login", new { Email, password = "Compatibility123!" })).EnsureSuccessStatusCode();
+        const string gif = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+        (await PostAsync(client, "/api/settings/profile", new { firstName = "GIF", lastName = "Test", email = Email, profileImage = gif })).EnsureSuccessStatusCode();
+        foreach (var image in new[] { "data:image/svg+xml;base64,PHN2Zy8+", "data:image/png;base64,invalid!", "data:image/jpeg;base64,aGVsbG8=", "data:image/webp;base64,", "data:image/png;base64," + Convert.ToBase64String(new byte[2 * 1024 * 1024 + 1]) })
+        {
+            var response = await PostAsync(client, "/api/settings/profile", new { firstName = "GIF", lastName = "Test", email = Email, profileImage = image });
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Contains("2 MB", await response.Content.ReadAsStringAsync());
+        }
+        Assert.Equal(HttpStatusCode.BadRequest, (await PostAsync(client, "/api/settings/profile", new { firstName = "GIF", lastName = "Test", email = Email, profileImage = true })).StatusCode);
+        using var scope = _factory.Services.CreateScope();
+        Assert.Equal(gif, (await scope.ServiceProvider.GetRequiredService<IUserRepository>().GetByIdAsync(_userId))!.Image);
+    }
+
+    [Fact]
+    public async Task OversizedRequestErrorsAreReportedAs413InsteadOf500()
+    {
+        var handler = new Atlas.Api.Middleware.ApiExceptionHandler(Microsoft.Extensions.Logging.Abstractions.NullLogger<Atlas.Api.Middleware.ApiExceptionHandler>.Instance);
+        var context = new Microsoft.AspNetCore.Http.DefaultHttpContext();
+        context.Response.Body = new MemoryStream();
+        await handler.TryHandleAsync(context, new Microsoft.AspNetCore.Http.BadHttpRequestException("Request body too large", 413), default);
+        Assert.Equal(413, context.Response.StatusCode);
+        context.Response.Body.Position = 0;
+        var problem = await JsonDocument.ParseAsync(context.Response.Body);
+        Assert.Contains("too large", problem.RootElement.GetProperty("detail").GetString());
+    }
+
+    [Fact]
     public async Task RegistrationIsDisabledAndSessionsAreStoredAsHashes()
     {
         var client = _factory.CreateClient();
